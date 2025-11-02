@@ -7,13 +7,13 @@ A Dart/Flutter port of [Python TinyTuya](https://github.com/jasonacox/tinytuya) 
 
 ## Features
 
-✅ **Complete Protocol Support**: v3.1, v3.3, v3.4, and v3.5 (including GCM encryption)
-✅ **Device Control**: Direct local network communication with Tuya devices
-✅ **Device Discovery**: UDP scanner to find devices on your network
-✅ **Cloud API**: Full Tuya Cloud API support for device management
-✅ **Device Types**: Outlets, Bulbs (RGB/HSV), Covers, and generic devices
-✅ **Python Compatible**: Byte-for-byte compatible with Python TinyTuya
-✅ **Well Tested**: 56+ tests with Python comparison validation
+- ✅ **Complete Protocol Support**: v3.1, v3.3, v3.4, and v3.5 (including GCM encryption)
+- ✅ **Device Control**: Direct local network communication with Tuya devices
+- ✅ **Device Discovery**: UDP scanner to find devices on your network
+- ✅ **Cloud API**: Full Tuya Cloud API support for device management
+- ✅ **Device Types**: Outlets, Bulbs (RGB/HSV), Covers, and generic devices
+- ✅ **Python Compatible**: Byte-for-byte compatible with Python TinyTuya
+- ✅ **Well Tested**: 56+ tests with Python comparison validation
 
 ## Installation
 
@@ -345,6 +345,7 @@ All tests compare output byte-for-byte with Python TinyTuya to ensure compatibil
 ### Device Connection Issues
 
 **Problem**: Cannot connect to device
+
 **Solutions**:
 - Verify device is on same network
 - Check firewall settings
@@ -352,6 +353,7 @@ All tests compare output byte-for-byte with Python TinyTuya to ensure compatibil
 - Verify local key is correct
 
 **Problem**: "Invalid JSON" errors
+
 **Solutions**:
 - Try different protocol versions (3.1, 3.3, 3.4, 3.5)
 - Some devices require protocol auto-detection
@@ -359,12 +361,14 @@ All tests compare output byte-for-byte with Python TinyTuya to ensure compatibil
 ### Cloud API Issues
 
 **Problem**: Authentication fails
+
 **Solutions**:
 - Verify API key and secret
 - Check API region matches your account
 - Ensure devices are linked to your cloud project
 
 **Problem**: "Device not found"
+
 **Solutions**:
 - Link device to cloud project in Tuya IoT Platform
 - Wait a few minutes after linking for propagation
