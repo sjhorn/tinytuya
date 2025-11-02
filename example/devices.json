@@ -1,0 +1,28 @@
+{
+  "devices": [
+    {
+      "name": "Device v3.3",
+      "device_id": "847703039c9c1fb74d55",
+      "local_key": "bh!l`X9b]D<<N#RP",
+      "ip": "192.168.1.227",
+      "version": 3.3,
+      "type": "unknown"
+    },
+    {
+      "name": "Device v3.5",
+      "device_id": "bf2e892da84368a7faahp1",
+      "local_key": "4t3@Kh$id@+_F7'w",
+      "ip": "192.168.1.61",
+      "version": 3.5,
+      "type": "unknown"
+    },
+    {
+      "name": "Device v3.4",
+      "device_id": "bff9dcd9353a327b67wvgf",
+      "local_key": ";B#tSrtX1#|#B)j`",
+      "ip": "192.168.1.146",
+      "version": 3.4,
+      "type": "unknown"
+    }
+  ]
+}
