@@ -1,5 +1,5 @@
 /// Diagnostic test for v3.5 device response decoding
-import 'package:tinytuya/tinytuya_dart.dart';
+import 'package:tinytuya/tinytuya.dart';
 
 void main() async {
   print('Testing v3.5 Device Response Decoding');

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:test/test.dart';
-import 'package:tinytuya/tinytuya_dart.dart';
+import 'package:tinytuya/tinytuya.dart';
 
 /// Helper to run Python test script
 Future<Map<String, dynamic>> runPythonSignatureTest() async {

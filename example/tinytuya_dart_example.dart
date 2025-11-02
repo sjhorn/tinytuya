@@ -1,4 +1,4 @@
-import 'package:tinytuya/tinytuya_dart.dart';
+import 'package:tinytuya/tinytuya.dart';
 
 /// Example usage of tinytuya_dart (work in progress)
 void main() async {

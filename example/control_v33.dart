@@ -1,5 +1,5 @@
 /// Control v3.3 device - turn on/off
-import 'package:tinytuya/tinytuya_dart.dart';
+import 'package:tinytuya/tinytuya.dart';
 
 void main() async {
   print('Testing Device v3.3 Control');

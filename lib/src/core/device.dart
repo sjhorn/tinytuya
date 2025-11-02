@@ -687,6 +687,7 @@ class Device {
   Future<Map<String, dynamic>> _sendReceive(
     MessagePayload payload, {
     bool getResponse = true,
+    int retryCount = 0,
   }) async {
     // Acquire lock to prevent concurrent operations
     await _acquireLock();
@@ -701,6 +702,7 @@ class Device {
       await _socket!.flush();
 
       if (!getResponse) {
+        _releaseLock();
         return {'success': true};
       }
 
@@ -750,19 +752,36 @@ class Device {
           result['dps'] = (result['data'] as Map)['dps'];
         }
 
+        _releaseLock();
         return result;
       }
 
+      _releaseLock();
       return {
         'success': response?.crcGood ?? false,
       };
     } catch (e) {
+      // Check if this is a timeout/connection error that we should retry
+      final errorStr = e.toString();
+      final isTimeoutError = errorStr.contains('Timeout') ||
+                            errorStr.contains('timeout') ||
+                            e is TimeoutException ||
+                            e is DecodeError;
+
+      if (isTimeoutError && retryCount < 1) {
+        // Socket connection has died (likely idle timeout)
+        // Close the dead socket and retry with a fresh connection
+        _releaseLock();
+        await _closeSocket();
+
+        // Retry once with a new connection
+        return await _sendReceive(payload, getResponse: getResponse, retryCount: retryCount + 1);
+      }
+
+      _releaseLock();
       return {
         'Error': e.toString(),
       };
-    } finally {
-      // Always release the lock, even if there was an error
-      _releaseLock();
     }
   }
 

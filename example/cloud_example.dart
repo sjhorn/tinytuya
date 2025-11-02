@@ -12,7 +12,7 @@
 /// 3. Link your Tuya devices to the project
 /// 4. Set environment variables or update the constants below
 
-import 'package:tinytuya/tinytuya_dart.dart';
+import 'package:tinytuya/tinytuya.dart';
 
 // Replace these with your actual credentials
 const apiKey = 'YOUR_API_KEY';

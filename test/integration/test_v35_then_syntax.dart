@@ -1,6 +1,6 @@
 /// Test v3.5 device using .then() syntax (Promise-style)
 /// This matches the user's actual usage pattern
-import 'package:tinytuya/tinytuya_dart.dart';
+import 'package:tinytuya/tinytuya.dart';
 
 void main() async {
   print('Testing v3.5 Device with .then() syntax');

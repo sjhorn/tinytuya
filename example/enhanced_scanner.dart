@@ -3,7 +3,7 @@
 /// This example scans for Tuya devices on your local network and displays
 /// comprehensive information about each device found.
 
-import 'package:tinytuya/tinytuya_dart.dart';
+import 'package:tinytuya/tinytuya.dart';
 
 void main() async {
   print('╔════════════════════════════════════════════════════════════════════╗');

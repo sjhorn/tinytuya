@@ -5,7 +5,7 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'package:tinytuya/tinytuya_dart.dart';
+import 'package:tinytuya/tinytuya.dart';
 
 /// Device configuration
 class DeviceConfig {

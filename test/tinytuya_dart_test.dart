@@ -1,4 +1,4 @@
-import 'package:tinytuya/tinytuya_dart.dart';
+import 'package:tinytuya/tinytuya.dart';
 import 'package:test/test.dart';
 
 void main() {

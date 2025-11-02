@@ -1,6 +1,6 @@
 /// Tests for message parsing, packing, and unpacking
 import 'package:test/test.dart';
-import 'package:tinytuya/tinytuya_dart.dart';
+import 'package:tinytuya/tinytuya.dart';
 import 'dart:typed_data';
 import 'dart:convert';
 

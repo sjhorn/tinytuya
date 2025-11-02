@@ -2,7 +2,7 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'package:tinytuya/tinytuya_dart.dart';
+import 'package:tinytuya/tinytuya.dart';
 
 Future<void> main(List<String> args) async {
   final scanTime = args.isNotEmpty ? int.parse(args[0]) : 5;

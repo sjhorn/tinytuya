@@ -6,7 +6,7 @@
 /// This test validates that we've achieved Python-level reliability.
 
 import 'dart:io';
-import 'package:tinytuya/tinytuya_dart.dart';
+import 'package:tinytuya/tinytuya.dart';
 
 /// Device configuration
 class TestDevice {
