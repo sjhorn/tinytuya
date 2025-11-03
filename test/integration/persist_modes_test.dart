@@ -1,184 +1,119 @@
-/// Test both persist=false (default) and persist=true modes
-/// This verifies socket behavior matches Python TinyTuya
+/// Integration test for socket persistence modes
+/// Tests persist=false (default) vs persist=true behavior
+@Tags(['integration'])
+library;
 
-import 'dart:convert';
-import 'dart:io';
+import 'package:test/test.dart';
 import 'package:tinytuya/tinytuya.dart';
+import 'test_helpers.dart';
 
-Future<void> main() async {
-  print('═══════════════════════════════════════════════════════════════');
-  print('Persist Mode Test - v3.5 Device');
-  print('═══════════════════════════════════════════════════════════════');
-  print('This test compares persist=false (default) vs persist=true');
-  print('═══════════════════════════════════════════════════════════════\n');
+void main() {
+  group('Persist Mode Tests', () {
+    test('persist=false closes socket after each operation', () async {
+      final config = await loadDeviceConfig();
+      if (config == null) {
+        print('Skipped: No devices.json found. Copy test/integration/devices.json.example and fill in device credentials to run integration tests');
+        return;
+      }
 
-  // Load device configuration
-  final configFile = File('example/devices.json');
-  if (!configFile.existsSync()) {
-    print('Error: devices.json not found');
-    exit(1);
-  }
+      final v35Device = findDeviceByVersion(config, 3.5);
+      if (v35Device == null) {
+        print('Skipped: No v3.5 device found in config');
+        return;
+      }
 
-  final config = jsonDecode(await configFile.readAsString());
-  final devices = config['devices'] as List;
+      print('Testing persist=false with: ${v35Device['name']}');
 
-  // Find v3.5 device
-  final v35Device = devices.firstWhere(
-    (d) => d['version'] == 3.5,
-    orElse: () => null,
-  );
+      final device = Device(
+        deviceId: v35Device['device_id'],
+        address: v35Device['ip'],
+        localKey: v35Device['local_key'],
+        version: v35Device['version'],
+        persist: false, // Socket closes after each operation
+      );
 
-  if (v35Device == null) {
-    print('Error: No v3.5 device found in config');
-    exit(1);
-  }
+      try {
+        final status1 = await device.status();
+        expect(status1['success'], isTrue);
+        print('✓ Status query 1 successful');
 
-  print('Testing with device: ${v35Device['name']}');
-  print('IP: ${v35Device['ip']}');
-  print('Version: ${v35Device['version']}\n');
+        await Future.delayed(const Duration(milliseconds: 100));
 
-  // Test 1: persist=false (default, matches Python's socketPersistent=False)
-  print('─────────────────────────────────────────────────────────────');
-  print('Test 1: persist=false (default) - Socket closes after each op');
-  print('─────────────────────────────────────────────────────────────');
+        final turnOnResult = await device.turnOn();
+        expect(turnOnResult['success'], isTrue);
+        print('✓ Turn ON successful');
 
-  final deviceNoPersist = Device(
-    deviceId: v35Device['device_id'],
-    address: v35Device['ip'],
-    localKey: v35Device['local_key'],
-    version: v35Device['version'],
-    persist: false, // Explicit, but this is the default
-  );
+        await Future.delayed(const Duration(milliseconds: 100));
 
-  try {
-    var success = 0;
-    var failed = 0;
+        final status2 = await device.status();
+        expect(status2['success'], isTrue);
+        print('✓ Status query 2 successful');
 
-    // Operation 1: Status query
-    final status1 = await deviceNoPersist.status();
-    if (status1['success'] == true) {
-      print('✓ Status query 1 successful');
-      success++;
-    } else {
-      print('✗ Status query 1 failed');
-      failed++;
-    }
+        await Future.delayed(const Duration(milliseconds: 100));
 
-    // Small delay between operations
-    await Future.delayed(const Duration(milliseconds: 100));
+        final turnOffResult = await device.turnOff();
+        expect(turnOffResult['success'], isTrue);
+        print('✓ Turn OFF successful');
 
-    // Operation 2: Turn on
-    final turnOn = await deviceNoPersist.turnOn();
-    if (turnOn['success'] == true) {
-      print('✓ Turn ON successful');
-      success++;
-    } else {
-      print('✗ Turn ON failed');
-      failed++;
-    }
+        print('\n✅ persist=false: All operations successful');
+      } finally {
+        device.close();
+      }
+    });
 
-    await Future.delayed(const Duration(milliseconds: 100));
+    test('persist=true keeps socket open between operations', () async {
+      final config = await loadDeviceConfig();
+      if (config == null) {
+        print('Skipped: No devices.json found. Copy test/integration/devices.json.example and fill in device credentials to run integration tests');
+        return;
+      }
 
-    // Operation 3: Status query
-    final status2 = await deviceNoPersist.status();
-    if (status2['success'] == true) {
-      print('✓ Status query 2 successful');
-      success++;
-    } else {
-      print('✗ Status query 2 failed');
-      failed++;
-    }
+      final v35Device = findDeviceByVersion(config, 3.5);
+      if (v35Device == null) {
+        print('Skipped: No v3.5 device found in config');
+        return;
+      }
 
-    await Future.delayed(const Duration(milliseconds: 100));
+      print('Testing persist=true with: ${v35Device['name']}');
 
-    // Operation 4: Turn off
-    final turnOff = await deviceNoPersist.turnOff();
-    if (turnOff['success'] == true) {
-      print('✓ Turn OFF successful');
-      success++;
-    } else {
-      print('✗ Turn OFF failed');
-      failed++;
-    }
+      final device = Device(
+        deviceId: v35Device['device_id'],
+        address: v35Device['ip'],
+        localKey: v35Device['local_key'],
+        version: v35Device['version'],
+        persist: true, // Socket stays open
+      );
 
-    print('persist=false: $success/${ success + failed} operations successful');
-  } finally {
-    deviceNoPersist.close();
-  }
+      try {
+        final status1 = await device.status();
+        expect(status1['success'], isTrue);
+        expect(device.isSocketActive, isTrue, reason: 'Socket should stay open with persist=true');
+        print('✓ Status query 1 successful - socket still open');
 
-  print('');
+        await Future.delayed(const Duration(milliseconds: 100));
 
-  // Test 2: persist=true - Socket stays open between operations
-  print('─────────────────────────────────────────────────────────────');
-  print('Test 2: persist=true - Socket stays open between operations');
-  print('─────────────────────────────────────────────────────────────');
+        final turnOnResult = await device.turnOn();
+        expect(turnOnResult['success'], isTrue);
+        expect(device.isSocketActive, isTrue);
+        print('✓ Turn ON successful - socket still open');
 
-  final devicePersist = Device(
-    deviceId: v35Device['device_id'],
-    address: v35Device['ip'],
-    localKey: v35Device['local_key'],
-    version: v35Device['version'],
-    persist: true, // Keep socket open
-  );
+        await Future.delayed(const Duration(milliseconds: 100));
 
-  try {
-    var success = 0;
-    var failed = 0;
+        final status2 = await device.status();
+        expect(status2['success'], isTrue);
+        expect(device.isSocketActive, isTrue);
+        print('✓ Status query 2 successful - socket still open');
 
-    // Operation 1: Status query
-    final status1 = await devicePersist.status();
-    if (status1['success'] == true) {
-      print('✓ Status query 1 successful');
-      success++;
-    } else {
-      print('✗ Status query 1 failed');
-      failed++;
-    }
+        await Future.delayed(const Duration(milliseconds: 100));
 
-    // Small delay between operations
-    await Future.delayed(const Duration(milliseconds: 100));
+        final turnOffResult = await device.turnOff();
+        expect(turnOffResult['success'], isTrue);
+        print('✓ Turn OFF successful');
 
-    // Operation 2: Turn on
-    final turnOn = await devicePersist.turnOn();
-    if (turnOn['success'] == true) {
-      print('✓ Turn ON successful');
-      success++;
-    } else {
-      print('✗ Turn ON failed');
-      failed++;
-    }
-
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    // Operation 3: Status query
-    final status2 = await devicePersist.status();
-    if (status2['success'] == true) {
-      print('✓ Status query 2 successful');
-      success++;
-    } else {
-      print('✗ Status query 2 failed');
-      failed++;
-    }
-
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    // Operation 4: Turn off
-    final turnOff = await devicePersist.turnOff();
-    if (turnOff['success'] == true) {
-      print('✓ Turn OFF successful');
-      success++;
-    } else {
-      print('✗ Turn OFF failed');
-      failed++;
-    }
-
-    print('persist=true: $success/${success + failed} operations successful');
-  } finally {
-    devicePersist.close();
-  }
-
-  print('');
-  print('═══════════════════════════════════════════════════════════════');
-  print('Both persist modes working correctly!');
-  print('═══════════════════════════════════════════════════════════════');
+        print('\n✅ persist=true: All operations successful, socket stayed open');
+      } finally {
+        device.close();
+      }
+    });
+  });
 }

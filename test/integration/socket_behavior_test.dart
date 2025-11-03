@@ -1,148 +1,134 @@
-/// Verify socket close/open behavior for persist modes
-/// This explicitly checks that sockets are closed/opened as expected
+/// Integration test for socket open/close behavior
+/// Verifies socket state for persist modes
+@Tags(['integration'])
+library;
 
-import 'dart:convert';
-import 'dart:io';
+import 'package:test/test.dart';
 import 'package:tinytuya/tinytuya.dart';
+import 'test_helpers.dart';
 
-Future<void> main() async {
-  print('═══════════════════════════════════════════════════════════════');
-  print('Socket Behavior Verification Test');
-  print('═══════════════════════════════════════════════════════════════');
-  print('This test verifies socket close/open behavior\n');
+void main() {
+  group('Socket Behavior Tests', () {
+    test('socket closes after operations with persist=false', () async {
+      final config = await loadDeviceConfig();
+      if (config == null) {
+        print('Skipped: No devices.json found. Copy test/integration/devices.json.example and fill in device credentials to run integration tests');
+        return;
+      }
 
-  // Load device configuration
-  final configFile = File('example/devices.json');
-  if (!configFile.existsSync()) {
-    print('Error: devices.json not found');
-    exit(1);
-  }
+      final v35Device = findDeviceByVersion(config, 3.5);
+      if (v35Device == null) {
+        print('Skipped: No v3.5 device found in config');
+        return;
+      }
 
-  final config = jsonDecode(await configFile.readAsString());
-  final devices = config['devices'] as List;
+      print('Verifying socket closes with persist=false');
 
-  // Find v3.5 device
-  final v35Device = devices.firstWhere(
-    (d) => d['version'] == 3.5,
-    orElse: () => null,
-  );
+      final device = Device(
+        deviceId: v35Device['device_id'],
+        address: v35Device['ip'],
+        localKey: v35Device['local_key'],
+        version: v35Device['version'],
+        persist: false,
+      );
 
-  if (v35Device == null) {
-    print('Error: No v3.5 device found in config');
-    exit(1);
-  }
+      try {
+        expect(device.isSocketActive, isFalse, reason: 'Socket should be closed initially');
 
-  print('Testing with device: ${v35Device['name']}');
-  print('IP: ${v35Device['ip']}\n');
+        await device.status();
+        expect(device.isSocketActive, isFalse, reason: 'Socket should close after operation with persist=false');
 
-  // Test 1: persist=false - Socket should close after each operation
-  print('─────────────────────────────────────────────────────────────');
-  print('Test 1: persist=false - Verify socket closes after each op');
-  print('─────────────────────────────────────────────────────────────');
+        await Future.delayed(const Duration(seconds: 2));
+        expect(device.isSocketActive, isFalse);
 
-  final deviceNoPersist = Device(
-    deviceId: v35Device['device_id'],
-    address: v35Device['ip'],
-    localKey: v35Device['local_key'],
-    version: v35Device['version'],
-    persist: false,
-  );
+        await device.turnOn();
+        expect(device.isSocketActive, isFalse, reason: 'Socket should close after each operation');
 
-  try {
-    final socketState = (bool active) => active ? 'OPEN' : 'CLOSED';
-    print('Initial state: Socket ${socketState(deviceNoPersist.isSocketActive)}');
+        print('✅ Socket correctly closes after each operation');
+      } finally {
+        device.close();
+      }
+    });
 
-    // Operation 1
-    print('\nOperation 1: Calling status()...');
-    await deviceNoPersist.status();
-    print('After operation: Socket ${socketState(deviceNoPersist.isSocketActive)}');
-    print('  ✓ Expected: CLOSED, Actual: ${socketState(deviceNoPersist.isSocketActive)}');
+    test('socket stays open between operations with persist=true', () async {
+      final config = await loadDeviceConfig();
+      if (config == null) {
+        print('Skipped: No devices.json found. Copy test/integration/devices.json.example and fill in device credentials to run integration tests');
+        return;
+      }
 
-    // Wait a bit to show socket stays closed
-    await Future.delayed(const Duration(seconds: 2));
-    print('After 2s wait: Socket ${socketState(deviceNoPersist.isSocketActive)}');
+      final v35Device = findDeviceByVersion(config, 3.5);
+      if (v35Device == null) {
+        print('Skipped: No v3.5 device found in config');
+        return;
+      }
 
-    // Operation 2
-    print('\nOperation 2: Calling turnOn()...');
-    await deviceNoPersist.turnOn();
-    print('After operation: Socket ${socketState(deviceNoPersist.isSocketActive)}');
-    print('  ✓ Expected: CLOSED, Actual: ${socketState(deviceNoPersist.isSocketActive)}');
+      print('Verifying socket stays open with persist=true');
 
-    // Verify socket is truly closed between operations
-    if (deviceNoPersist.isSocketActive) {
-      print('\n❌ FAIL: Socket should be CLOSED with persist=false');
-    } else {
-      print('\n✅ PASS: Socket correctly CLOSED after each operation');
-    }
-  } finally {
-    deviceNoPersist.close();
-  }
+      final device = Device(
+        deviceId: v35Device['device_id'],
+        address: v35Device['ip'],
+        localKey: v35Device['local_key'],
+        version: v35Device['version'],
+        persist: true,
+      );
 
-  print('');
+      try {
+        expect(device.isSocketActive, isFalse, reason: 'Socket should be closed initially');
 
-  // Test 2: persist=true - Socket should stay open, then test timeout
-  print('─────────────────────────────────────────────────────────────');
-  print('Test 2: persist=true - Socket stays open, test timeout');
-  print('─────────────────────────────────────────────────────────────');
+        await device.status();
+        expect(device.isSocketActive, isTrue, reason: 'Socket should stay open after operation with persist=true');
 
-  final devicePersist = Device(
-    deviceId: v35Device['device_id'],
-    address: v35Device['ip'],
-    localKey: v35Device['local_key'],
-    version: v35Device['version'],
-    persist: true,
-  );
+        await Future.delayed(const Duration(seconds: 2));
+        expect(device.isSocketActive, isTrue, reason: 'Socket should still be open after delay');
 
-  try {
-    final socketState = (bool active) => active ? 'OPEN' : 'CLOSED';
-    print('Initial state: Socket ${socketState(devicePersist.isSocketActive)}');
+        await device.turnOn();
+        expect(device.isSocketActive, isTrue, reason: 'Socket should stay open between operations');
 
-    // Operation 1
-    print('\nOperation 1: Calling status()...');
-    await devicePersist.status();
-    print('After operation: Socket ${socketState(devicePersist.isSocketActive)}');
-    print('  ✓ Expected: OPEN, Actual: ${socketState(devicePersist.isSocketActive)}');
+        print('✅ Socket correctly stays open between operations');
+      } finally {
+        device.close();
+      }
+    });
 
-    // Verify socket stays open
-    await Future.delayed(const Duration(seconds: 2));
-    print('After 2s wait: Socket ${socketState(devicePersist.isSocketActive)}');
+    test('socket reconnects after timeout with persist=true', () async {
+      final config = await loadDeviceConfig();
+      if (config == null) {
+        print('Skipped: No devices.json found. Copy test/integration/devices.json.example and fill in device credentials to run integration tests');
+        return;
+      }
 
-    // Operation 2 - should reuse existing socket
-    print('\nOperation 2: Calling turnOn()...');
-    await devicePersist.turnOn();
-    print('After operation: Socket ${socketState(devicePersist.isSocketActive)}');
-    print('  ✓ Expected: OPEN, Actual: ${socketState(devicePersist.isSocketActive)}');
+      final v35Device = findDeviceByVersion(config, 3.5);
+      if (v35Device == null) {
+        print('Skipped: No v3.5 device found in config');
+        return;
+      }
 
-    if (!devicePersist.isSocketActive) {
-      print('\n❌ FAIL: Socket should stay OPEN with persist=true');
-    } else {
-      print('\n✅ PASS: Socket correctly stays OPEN between operations');
-    }
+      print('Testing idle timeout reconnection');
 
-    // Test 3: Wait for timeout (90 seconds) then verify reconnection
-    print('\n─────────────────────────────────────────────────────────────');
-    print('Test 3: Idle timeout test - Wait 90s, then reconnect');
-    print('─────────────────────────────────────────────────────────────');
-    print('Waiting 90 seconds without any operations...');
-    print('(Socket will timeout and automatic reconnection will handle it)');
+      final device = Device(
+        deviceId: v35Device['device_id'],
+        address: v35Device['ip'],
+        localKey: v35Device['local_key'],
+        version: v35Device['version'],
+        persist: true,
+      );
 
-    await Future.delayed(const Duration(seconds: 90));
+      try {
+        await device.status();
+        expect(device.isSocketActive, isTrue);
 
-    print('\n90 seconds elapsed. Attempting operation...');
-    final result = await devicePersist.status();
+        print('Waiting 90 seconds for timeout...');
+        await Future.delayed(const Duration(seconds: 90));
 
-    if (result['success'] == true) {
-      print('✅ Status query successful after 90s idle');
-      print('   Automatic reconnection worked correctly');
-    } else {
-      print('❌ Status query failed after 90s idle');
-    }
+        print('Attempting operation after timeout...');
+        final result = await device.status();
+        expect(result['success'], isTrue, reason: 'Should reconnect automatically after timeout');
 
-  } finally {
-    devicePersist.close();
-  }
-
-  print('\n═══════════════════════════════════════════════════════════════');
-  print('Verification Complete');
-  print('═══════════════════════════════════════════════════════════════');
+        print('✅ Automatic reconnection worked correctly');
+      } finally {
+        device.close();
+      }
+    }, timeout: const Timeout(Duration(minutes: 3)));
+  });
 }
