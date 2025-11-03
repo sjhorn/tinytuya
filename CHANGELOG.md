@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto-detection of bulb types (A, B, C)
 - Color conversion utilities (RGB ↔ HSV)
 - Status caching for efficient device communication
+- Socket persistence control via `persist` parameter (matches Python's `socketPersistent`)
+- Automatic session timeout detection and reconnection
+- Session key negotiation for v3.4+ devices
 
 ### Technical Details
 - Byte-for-byte compatible with Python TinyTuya

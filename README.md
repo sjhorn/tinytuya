@@ -305,6 +305,37 @@ You need three pieces of information to control a device:
 
 The library automatically handles all protocol versions.
 
+### Socket Persistence
+
+The `persist` parameter controls socket connection behavior:
+
+```dart
+// persist=false (default) - Socket closes after each operation
+// Matches Python TinyTuya's socketPersistent=False
+final device = Device(
+  deviceId: 'your_device_id',
+  address: '192.168.1.100',
+  localKey: 'your_local_key',
+  version: 3.3,
+  persist: false,  // Default - socket closes after each operation
+);
+
+// persist=true - Socket stays open between operations
+// Better for frequent operations, but connection may timeout after ~1 minute idle
+final devicePersistent = Device(
+  deviceId: 'your_device_id',
+  address: '192.168.1.100',
+  localKey: 'your_local_key',
+  version: 3.3,
+  persist: true,  // Keep socket open
+);
+```
+
+**Recommendations**:
+- Use `persist=false` (default) for reliability - socket closes/reopens for each operation
+- Use `persist=true` for performance when making many rapid consecutive operations
+- The library automatically handles session timeout and reconnection in both modes
+
 ## Examples
 
 See the [`example/`](example/) directory for complete examples:

@@ -28,6 +28,7 @@ class Device {
   final int socketRetryLimit;
   final Duration socketRetryDelay;
   final bool socketNoDelay;
+  final bool persist;
 
   int _seqno = 1; // Start at 1 to match Python behavior
   AESCipher? _cipher;
@@ -63,6 +64,7 @@ class Device {
     this.socketRetryLimit = 5,
     this.socketRetryDelay = const Duration(seconds: 5),
     this.socketNoDelay = true,
+    this.persist = false, // Default false to match Python's socketPersistent=False
   }) {
     _initVersionHeader();
     _realLocalKey = localKey;
@@ -130,6 +132,18 @@ class Device {
     _sessionKey = _realLocalKey; // Reset to original key
   }
 
+  /// Check if socket should be closed (matches Python's _check_socket_close)
+  ///
+  /// Closes socket if force=true or if persist=false (not persistent mode).
+  /// This matches Python TinyTuya's socketPersistent behavior.
+  Future<void> _checkSocketClose({bool force = false}) async {
+    if ((force || !persist) && _socket != null) {
+      await _closeSocket();
+      // Clear cached status (matches Python's cache_clear())
+      _lastStatus = null;
+    }
+  }
+
   /// Acquire operation lock to prevent concurrent device operations
   Future<void> _acquireLock() async {
     while (_operationLock != null) {
@@ -181,7 +195,7 @@ class Device {
       await _negotiateSessionKeyFinalize();
 
       return true;
-    } catch (e, stack) {
+    } catch (e) {
       return false;
     }
   }
@@ -306,7 +320,7 @@ class Device {
       }
 
       return response;
-    } catch (e, stack) {
+    } catch (e) {
       return null;
     }
   }
@@ -702,6 +716,8 @@ class Device {
       await _socket!.flush();
 
       if (!getResponse) {
+        // Close socket if not in persistent mode (matches Python behavior)
+        await _checkSocketClose();
         _releaseLock();
         return {'success': true};
       }
@@ -752,10 +768,14 @@ class Device {
           result['dps'] = (result['data'] as Map)['dps'];
         }
 
+        // Close socket if not in persistent mode (matches Python behavior)
+        await _checkSocketClose();
         _releaseLock();
         return result;
       }
 
+      // Close socket if not in persistent mode (matches Python behavior)
+      await _checkSocketClose();
       _releaseLock();
       return {
         'success': response?.crcGood ?? false,
@@ -1032,4 +1052,8 @@ class Device {
   Future<void> close() async {
     await _closeSocket();
   }
+
+  /// Get socket state for debugging/testing
+  /// Returns true if socket is active, false if closed
+  bool get isSocketActive => _socket != null;
 }
