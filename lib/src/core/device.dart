@@ -104,24 +104,25 @@ class Device {
       }
     }
 
-    // Cancel subscription and wait for it to fully drain
-    if (_socketSubscription != null) {
-      // Pause subscription to stop new data from being buffered
-      _socketSubscription!.pause();
-
-      // Give a brief moment for any in-flight data to settle
-      // This mimics the synchronous nature of Python's socket.close()
-      await Future.delayed(const Duration(milliseconds: 50));
-
-      // Now cancel the subscription
-      await _socketSubscription!.cancel();
-      _socketSubscription = null;
+    // CRITICAL: Close socket FIRST, then cancel subscription
+    // This prevents "StreamSink is bound to a stream" errors
+    if (_socket != null) {
+      try {
+        await _socket!.close();
+      } catch (e) {
+        // Ignore errors during close
+      }
+      _socket = null;
     }
 
-    // Close socket
-    if (_socket != null) {
-      await _socket!.close();
-      _socket = null;
+    // Cancel subscription after socket is closed
+    if (_socketSubscription != null) {
+      try {
+        await _socketSubscription!.cancel();
+      } catch (e) {
+        // Ignore errors during cancel
+      }
+      _socketSubscription = null;
     }
 
     // Clear buffers
@@ -718,7 +719,6 @@ class Device {
       if (!getResponse) {
         // Close socket if not in persistent mode (matches Python behavior)
         await _checkSocketClose();
-        _releaseLock();
         return {'success': true};
       }
 
@@ -770,13 +770,11 @@ class Device {
 
         // Close socket if not in persistent mode (matches Python behavior)
         await _checkSocketClose();
-        _releaseLock();
         return result;
       }
 
       // Close socket if not in persistent mode (matches Python behavior)
       await _checkSocketClose();
-      _releaseLock();
       return {
         'success': response?.crcGood ?? false,
       };
@@ -798,10 +796,17 @@ class Device {
         return await _sendReceive(payload, getResponse: getResponse, retryCount: retryCount + 1);
       }
 
-      _releaseLock();
+      // CRITICAL: Always close socket on error to ensure clean state for next operation
+      // Any error indicates the socket/buffer is in an unknown/corrupted state
+      await _closeSocket();
+
       return {
         'Error': e.toString(),
       };
+    } finally {
+      // CRITICAL: Always release lock, even if an exception escapes this method
+      // This ensures we never deadlock if a timeout occurs from outside this method
+      _releaseLock();
     }
   }
 
