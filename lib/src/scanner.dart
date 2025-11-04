@@ -33,15 +33,15 @@ class DiscoveredDevice {
   });
 
   Map<String, dynamic> toJson() => {
-        'ip': ip,
-        if (gwId != null) 'gwId': gwId,
-        if (productKey != null) 'productKey': productKey,
-        if (version != null) 'version': version,
-        if (mac != null) 'mac': mac,
-        if (name != null) 'name': name,
-        if (key != null) 'key': key,
-        'raw': rawData,
-      };
+    'ip': ip,
+    if (gwId != null) 'gwId': gwId,
+    if (productKey != null) 'productKey': productKey,
+    if (version != null) 'version': version,
+    if (mac != null) 'mac': mac,
+    if (name != null) 'name': name,
+    if (key != null) 'key': key,
+    'raw': rawData,
+  };
 }
 
 /// Scan the network for Tuya devices
@@ -56,7 +56,7 @@ Future<List<DiscoveredDevice>> deviceScan({
   int scanTime = scanTime,
   bool verbose = false,
 }) async {
-  final devices = <String, DiscoveredDevice>{};  // Map by IP to avoid duplicates
+  final devices = <String, DiscoveredDevice>{}; // Map by IP to avoid duplicates
   final listeners = <RawDatagramSocket>[];
 
   try {
@@ -65,7 +65,10 @@ Future<List<DiscoveredDevice>> deviceScan({
 
     for (final port in ports) {
       try {
-        final socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, port);
+        final socket = await RawDatagramSocket.bind(
+          InternetAddress.anyIPv4,
+          port,
+        );
         socket.broadcastEnabled = true;
         listeners.add(socket);
 
@@ -85,16 +88,27 @@ Future<List<DiscoveredDevice>> deviceScan({
 
     // Send broadcast request to port 7000 for v3.5 devices
     try {
-      final broadcastSocket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
+      final broadcastSocket = await RawDatagramSocket.bind(
+        InternetAddress.anyIPv4,
+        0,
+      );
       broadcastSocket.broadcastEnabled = true;
 
       // Request device info (command 0x25 = reqDevinfo)
-      final request = Uint8List.fromList(utf8.encode(jsonEncode({
-        'from': 'app',
-        't': (DateTime.now().millisecondsSinceEpoch / 1000).floor(),
-      })));
+      final request = Uint8List.fromList(
+        utf8.encode(
+          jsonEncode({
+            'from': 'app',
+            't': (DateTime.now().millisecondsSinceEpoch / 1000).floor(),
+          }),
+        ),
+      );
 
-      broadcastSocket.send(request, InternetAddress('255.255.255.255'), udpPortApp);
+      broadcastSocket.send(
+        request,
+        InternetAddress('255.255.255.255'),
+        udpPortApp,
+      );
 
       if (verbose) {
         print('Sent broadcast discovery packet to port $udpPortApp');
@@ -118,9 +132,14 @@ Future<List<DiscoveredDevice>> deviceScan({
 
           try {
             if (verbose) {
-              print('  Received ${datagram.data.length} bytes from ${datagram.address.address}');
+              print(
+                '  Received ${datagram.data.length} bytes from ${datagram.address.address}',
+              );
               // Print first 40 bytes in hex for debugging
-              final hexStr = datagram.data.take(40).map((b) => b.toRadixString(16).padLeft(2, '0')).join('');
+              final hexStr = datagram.data
+                  .take(40)
+                  .map((b) => b.toRadixString(16).padLeft(2, '0'))
+                  .join('');
               print('    First 40 bytes: $hexStr');
             }
 
@@ -159,7 +178,9 @@ Future<List<DiscoveredDevice>> deviceScan({
           } catch (e) {
             // Ignore decrypt/parse errors
             if (verbose) {
-              print('Warning: Could not decrypt/parse packet from ${datagram.address.address}: $e');
+              print(
+                'Warning: Could not decrypt/parse packet from ${datagram.address.address}: $e',
+              );
             }
           }
         }

@@ -17,10 +17,7 @@ class CommandConfig {
   final Map<String, dynamic> command;
   final int? commandOverride;
 
-  CommandConfig({
-    required this.command,
-    this.commandOverride,
-  });
+  CommandConfig({required this.command, this.commandOverride});
 
   /// Deep copy of command map
   Map<String, dynamic> copyCommand() {
@@ -49,30 +46,20 @@ final Map<String, Map<int, CommandConfig>> payloadDict = {
     apConfig: CommandConfig(
       command: {'gwId': '', 'devId': '', 'uid': '', 't': ''},
     ),
-    control: CommandConfig(
-      command: {'devId': '', 'uid': '', 't': ''},
-    ),
-    status: CommandConfig(
-      command: {'gwId': '', 'devId': ''},
-    ),
-    heartBeat: CommandConfig(
-      command: {'gwId': '', 'devId': ''},
-    ),
+    control: CommandConfig(command: {'devId': '', 'uid': '', 't': ''}),
+    status: CommandConfig(command: {'gwId': '', 'devId': ''}),
+    heartBeat: CommandConfig(command: {'gwId': '', 'devId': ''}),
     dpQuery: CommandConfig(
       command: {'gwId': '', 'devId': '', 'uid': '', 't': ''},
     ),
-    controlNew: CommandConfig(
-      command: {'devId': '', 'uid': '', 't': ''},
-    ),
-    dpQueryNew: CommandConfig(
-      command: {'devId': '', 'uid': '', 't': ''},
-    ),
+    controlNew: CommandConfig(command: {'devId': '', 'uid': '', 't': ''}),
+    dpQueryNew: CommandConfig(command: {'devId': '', 'uid': '', 't': ''}),
     updatedps: CommandConfig(
-      command: {'dpId': [18, 19, 20]},
+      command: {
+        'dpId': [18, 19, 20],
+      },
     ),
-    lanExtStream: CommandConfig(
-      command: {'reqType': '', 'data': {}},
-    ),
+    lanExtStream: CommandConfig(command: {'reqType': '', 'data': {}}),
   },
 
   // Special Case Device with 22 character ID
@@ -89,16 +76,9 @@ final Map<String, Map<int, CommandConfig>> payloadDict = {
       commandOverride: controlNew, // Uses CONTROL_NEW command
       command: {'protocol': 5, 't': 'int', 'data': {}},
     ),
-    controlNew: CommandConfig(
-      command: {'protocol': 5, 't': 'int', 'data': {}},
-    ),
-    dpQuery: CommandConfig(
-      commandOverride: dpQueryNew,
-      command: {},
-    ),
-    dpQueryNew: CommandConfig(
-      command: {},
-    ),
+    controlNew: CommandConfig(command: {'protocol': 5, 't': 'int', 'data': {}}),
+    dpQuery: CommandConfig(commandOverride: dpQueryNew, command: {}),
+    dpQueryNew: CommandConfig(command: {}),
   },
 
   // v3.5 is just a copy of v3.4
@@ -107,16 +87,9 @@ final Map<String, Map<int, CommandConfig>> payloadDict = {
       commandOverride: controlNew, // Uses CONTROL_NEW command
       command: {'protocol': 5, 't': 'int', 'data': {}},
     ),
-    controlNew: CommandConfig(
-      command: {'protocol': 5, 't': 'int', 'data': {}},
-    ),
-    dpQuery: CommandConfig(
-      commandOverride: dpQueryNew,
-      command: {},
-    ),
-    dpQueryNew: CommandConfig(
-      command: {},
-    ),
+    controlNew: CommandConfig(command: {'protocol': 5, 't': 'int', 'data': {}}),
+    dpQuery: CommandConfig(commandOverride: dpQueryNew, command: {}),
+    dpQueryNew: CommandConfig(command: {}),
   },
 
   // Placeholders
@@ -126,45 +99,73 @@ final Map<String, Map<int, CommandConfig>> payloadDict = {
 
   // Zigbee devices
   'zigbee': {
-    control: CommandConfig(
-      command: {'t': 'int', 'cid': ''},
-    ),
-    dpQuery: CommandConfig(
-      command: {'t': 'int', 'cid': ''},
-    ),
+    control: CommandConfig(command: {'t': 'int', 'cid': ''}),
+    dpQuery: CommandConfig(command: {'t': 'int', 'cid': ''}),
   },
 
   'zigbee_v3.4': {
     control: CommandConfig(
       commandOverride: controlNew,
-      command: {'protocol': 5, 't': 'int', 'data': {'cid': ''}},
+      command: {
+        'protocol': 5,
+        't': 'int',
+        'data': {'cid': ''},
+      },
     ),
     controlNew: CommandConfig(
-      command: {'protocol': 5, 't': 'int', 'data': {'cid': ''}},
+      command: {
+        'protocol': 5,
+        't': 'int',
+        'data': {'cid': ''},
+      },
     ),
     dpQuery: CommandConfig(
       commandOverride: dpQueryNew,
-      command: {'protocol': 5, 't': 'int', 'data': {'cid': ''}},
+      command: {
+        'protocol': 5,
+        't': 'int',
+        'data': {'cid': ''},
+      },
     ),
     dpQueryNew: CommandConfig(
-      command: {'protocol': 5, 't': 'int', 'data': {'cid': ''}},
+      command: {
+        'protocol': 5,
+        't': 'int',
+        'data': {'cid': ''},
+      },
     ),
   },
 
   'zigbee_v3.5': {
     control: CommandConfig(
       commandOverride: controlNew,
-      command: {'protocol': 5, 't': 'int', 'data': {'cid': ''}},
+      command: {
+        'protocol': 5,
+        't': 'int',
+        'data': {'cid': ''},
+      },
     ),
     controlNew: CommandConfig(
-      command: {'protocol': 5, 't': 'int', 'data': {'cid': ''}},
+      command: {
+        'protocol': 5,
+        't': 'int',
+        'data': {'cid': ''},
+      },
     ),
     dpQuery: CommandConfig(
       commandOverride: dpQueryNew,
-      command: {'protocol': 5, 't': 'int', 'data': {'cid': ''}},
+      command: {
+        'protocol': 5,
+        't': 'int',
+        'data': {'cid': ''},
+      },
     ),
     dpQueryNew: CommandConfig(
-      command: {'protocol': 5, 't': 'int', 'data': {'cid': ''}},
+      command: {
+        'protocol': 5,
+        't': 'int',
+        'data': {'cid': ''},
+      },
     ),
   },
 };

@@ -17,21 +17,10 @@ void main() async {
 
   // Test turn ON with .then() syntax
   print('Turning device ON...');
-  device.turnOn().then((data) {
-    print('Device turned on: $data');
-
-    if (data.containsKey('Error')) {
-      print('⚠️  ERROR: ${data['Error']}');
-    } else {
-      print('✓ No errors!');
-    }
-    print('');
-
-    // Wait a bit, then turn OFF
-    Future.delayed(Duration(seconds: 1)).then((_) {
-      print('Turning device OFF...');
-      device.turnOff().then((data) {
-        print('Device turned off: $data');
+  device
+      .turnOn()
+      .then((data) {
+        print('Device turned on: $data');
 
         if (data.containsKey('Error')) {
           print('⚠️  ERROR: ${data['Error']}');
@@ -40,23 +29,37 @@ void main() async {
         }
         print('');
 
-        // Get final status
-        device.status().then((status) {
-          print('Final status: $status');
-          if (status.containsKey('dps')) {
-            print('✓ DPS: ${status['dps']}');
-          }
+        // Wait a bit, then turn OFF
+        Future.delayed(Duration(seconds: 1)).then((_) {
+          print('Turning device OFF...');
+          device.turnOff().then((data) {
+            print('Device turned off: $data');
 
-          device.close();
-          print('');
-          print('Test complete!');
+            if (data.containsKey('Error')) {
+              print('⚠️  ERROR: ${data['Error']}');
+            } else {
+              print('✓ No errors!');
+            }
+            print('');
+
+            // Get final status
+            device.status().then((status) {
+              print('Final status: $status');
+              if (status.containsKey('dps')) {
+                print('✓ DPS: ${status['dps']}');
+              }
+
+              device.close();
+              print('');
+              print('Test complete!');
+            });
+          });
         });
+      })
+      .catchError((error) {
+        print('✗ Exception: $error');
+        device.close();
       });
-    });
-  }).catchError((error) {
-    print('✗ Exception: $error');
-    device.close();
-  });
 
   // Keep the program alive
   await Future.delayed(Duration(seconds: 5));

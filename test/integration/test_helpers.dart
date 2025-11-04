@@ -19,10 +19,10 @@ Future<Map<String, dynamic>?> loadDeviceConfig() async {
 }
 
 /// Find a device by version from the config
-Map<String, dynamic>? findDeviceByVersion(Map<String, dynamic> config, double version) {
+Map<String, dynamic>? findDeviceByVersion(
+  Map<String, dynamic> config,
+  double version,
+) {
   final devices = config['devices'] as List;
-  return devices.firstWhere(
-    (d) => d['version'] == version,
-    orElse: () => null,
-  );
+  return devices.firstWhere((d) => d['version'] == version, orElse: () => null);
 }

@@ -1,6 +1,6 @@
 name: tinytuya
 description: Dart/Flutter port of Python TinyTuya - Control Tuya WiFi smart devices over LAN. Supports v3.1-v3.5 protocols, device discovery, cloud API, and all device types.
-version: 0.1.0
+version: 0.1.1
 homepage: https://github.com/sjhorn/tinytuya
 repository: https://github.com/sjhorn/tinytuya
 issue_tracker: https://github.com/sjhorn/tinytuya/issues

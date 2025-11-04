@@ -12,11 +12,16 @@ import 'exceptions.dart';
 /// Parse header from raw bytes
 TuyaHeader parseHeader(Uint8List data) {
   // Check for 6699 prefix
-  final is6699 = data.length >= 4 &&
-                 data[0] == 0x00 && data[1] == 0x00 &&
-                 data[2] == 0x66 && data[3] == 0x99;
+  final is6699 =
+      data.length >= 4 &&
+      data[0] == 0x00 &&
+      data[1] == 0x00 &&
+      data[2] == 0x66 &&
+      data[3] == 0x99;
 
-  final headerLen = is6699 ? 18 : 16; // 6699: I+H+I+I+I = 4+2+4+4+4 = 18 bytes, 55AA: 4*I = 16 bytes
+  final headerLen = is6699
+      ? 18
+      : 16; // 6699: I+H+I+I+I = 4+2+4+4+4 = 18 bytes, 55AA: 4*I = 16 bytes
 
   if (data.length < headerLen) {
     throw DecodeError('Not enough data to unpack header');
@@ -29,10 +34,10 @@ TuyaHeader parseHeader(Uint8List data) {
   if (is6699) {
     // 6699 format: prefix(4), unknown(2), seqno(4), cmd(4), length(4) = 18 bytes total
     // Python format string: >IHIII
-    prefix = byteData.getUint32(0, Endian.big);    // offset 0-3
+    prefix = byteData.getUint32(0, Endian.big); // offset 0-3
     // unknown uint16 at offset 4-5 (skip it)
-    seqno = byteData.getUint32(6, Endian.big);     // offset 6-9
-    cmd = byteData.getUint32(10, Endian.big);      // offset 10-13
+    seqno = byteData.getUint32(6, Endian.big); // offset 6-9
+    cmd = byteData.getUint32(10, Endian.big); // offset 10-13
     payloadLen = byteData.getUint32(14, Endian.big); // offset 14-17
     totalLength = payloadLen + headerLen + 4; // +4 for suffix
   } else {
@@ -45,16 +50,20 @@ TuyaHeader parseHeader(Uint8List data) {
 
     // Validate prefix
     if (prefix != prefix55aaValue && prefix != prefix6699Value) {
-      throw DecodeError('Header prefix wrong! 0x${prefix.toRadixString(16).padLeft(8, '0')} '
-                       'is not 0x${prefix55aaValue.toRadixString(16).padLeft(8, '0')} '
-                       'or 0x${prefix6699Value.toRadixString(16).padLeft(8, '0')}');
+      throw DecodeError(
+        'Header prefix wrong! 0x${prefix.toRadixString(16).padLeft(8, '0')} '
+        'is not 0x${prefix55aaValue.toRadixString(16).padLeft(8, '0')} '
+        'or 0x${prefix6699Value.toRadixString(16).padLeft(8, '0')}',
+      );
     }
   }
 
   // Sanity check - max payload is around 300 bytes typically
   if (payloadLen > 1000) {
-    throw DecodeError('Header claims the packet size is over 1000 bytes! '
-                     'It is most likely corrupt. Claimed size: $payloadLen bytes');
+    throw DecodeError(
+      'Header claims the packet size is over 1000 bytes! '
+      'It is most likely corrupt. Claimed size: $payloadLen bytes',
+    );
   }
 
   return TuyaHeader(
@@ -121,7 +130,6 @@ Future<Uint8List> packMessage(TuyaMessage msg, {Uint8List? hmacKey}) async {
 
     // Add suffix
     buffer.add(suffix55aaBin);
-
   } else if (msg.prefix == prefix6699Value) {
     // 6699 format - requires HMAC key
     if (hmacKey == null) {
@@ -137,11 +145,11 @@ Future<Uint8List> packMessage(TuyaMessage msg, {Uint8List? hmacKey}) async {
     // Pack header: prefix(4), unknown(2), seqno(4), cmd(4), length(4) = 18 bytes
     // Python format: >IHIII
     final header = ByteData(18);
-    header.setUint32(0, msg.prefix, Endian.big);     // offset 0-3
-    header.setUint16(4, 0, Endian.big);              // offset 4-5: unknown field (uint16)
-    header.setUint32(6, msg.seqno, Endian.big);      // offset 6-9
-    header.setUint32(10, msg.cmd, Endian.big);       // offset 10-13
-    header.setUint32(14, msgLen, Endian.big);        // offset 14-17
+    header.setUint32(0, msg.prefix, Endian.big); // offset 0-3
+    header.setUint16(4, 0, Endian.big); // offset 4-5: unknown field (uint16)
+    header.setUint32(6, msg.seqno, Endian.big); // offset 6-9
+    header.setUint32(10, msg.cmd, Endian.big); // offset 10-13
+    header.setUint32(14, msgLen, Endian.big); // offset 14-17
 
     buffer.add(header.buffer.asUint8List());
 
@@ -151,7 +159,10 @@ Future<Uint8List> packMessage(TuyaMessage msg, {Uint8List? hmacKey}) async {
     if (msg.retcode != 0) {
       final retcodeBytes = ByteData(4);
       retcodeBytes.setUint32(0, msg.retcode, Endian.big);
-      raw = Uint8List.fromList([...retcodeBytes.buffer.asUint8List(), ...msg.payload]);
+      raw = Uint8List.fromList([
+        ...retcodeBytes.buffer.asUint8List(),
+        ...msg.payload,
+      ]);
     } else {
       raw = msg.payload;
     }
@@ -169,9 +180,10 @@ Future<Uint8List> packMessage(TuyaMessage msg, {Uint8List? hmacKey}) async {
 
     buffer.add(encrypted);
     buffer.add(suffix6699Bin);
-
   } else {
-    throw ArgumentError('pack_message() cannot handle message format 0x${msg.prefix.toRadixString(16)}');
+    throw ArgumentError(
+      'pack_message() cannot handle message format 0x${msg.prefix.toRadixString(16)}',
+    );
   }
 
   return buffer.toBytes();
@@ -190,7 +202,9 @@ Future<TuyaMessage> unpackMessage(
   final is6699 = header.prefix == prefix6699Value;
 
   if (!is55aa && !is6699) {
-    throw ArgumentError('unpack_message() cannot handle message format 0x${header.prefix.toRadixString(16)}');
+    throw ArgumentError(
+      'unpack_message() cannot handle message format 0x${header.prefix.toRadixString(16)}',
+    );
   }
 
   int headerLen, endFmtSize, retcodeLen, msgLen;
@@ -230,7 +244,11 @@ Future<TuyaMessage> unpackMessage(
 
     // Extract retcode if present
     if (retcodeLen > 0 && header.length >= retcodeLen) {
-      final retcodeData = ByteData.sublistView(data, headerLen, headerLen + retcodeLen);
+      final retcodeData = ByteData.sublistView(
+        data,
+        headerLen,
+        headerLen + retcodeLen,
+      );
       retcode = retcodeData.getUint32(0, Endian.big);
     }
 
@@ -260,13 +278,17 @@ Future<TuyaMessage> unpackMessage(
     }
 
     // Verify suffix
-    final suffixData = ByteData.sublistView(endData, endFmtSize - 4, endFmtSize);
+    final suffixData = ByteData.sublistView(
+      endData,
+      endFmtSize - 4,
+      endFmtSize,
+    );
     final suffix = suffixData.getUint32(0, Endian.big);
     if (suffix != suffix55aaValue) {
       // Log warning but continue
     }
-
-  } else { // 6699 format
+  } else {
+    // 6699 format
     if (hmacKey == null) {
       throw TypeError();
     }
@@ -280,7 +302,11 @@ Future<TuyaMessage> unpackMessage(
     }
 
     // Extract encrypted payload
-    payload = Uint8List.sublistView(data, headerLen, msgLen - 4); // -4 for suffix
+    payload = Uint8List.sublistView(
+      data,
+      headerLen,
+      msgLen - 4,
+    ); // -4 for suffix
 
     // Extract IV (first 12 bytes of payload)
     iv = payload.sublist(0, 12);
@@ -294,15 +320,17 @@ Future<TuyaMessage> unpackMessage(
     try {
       final cipher = AESCipher(hmacKey);
       final headerAad = data.sublist(4, headerLen);
-      payload = await cipher.decrypt(
-        enc: ciphertext,
-        useBase64: false,
-        decodeText: false,
-        useIv: true,
-        iv: iv,
-        header: headerAad,
-        tag: tag,
-      ) as Uint8List;
+      payload =
+          await cipher.decrypt(
+                enc: ciphertext,
+                useBase64: false,
+                decodeText: false,
+                useIv: true,
+                iv: iv,
+                header: headerAad,
+                tag: tag,
+              )
+              as Uint8List;
       crcGood = true;
     } catch (e) {
       crcGood = false;

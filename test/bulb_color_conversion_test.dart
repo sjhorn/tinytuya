@@ -5,10 +5,9 @@ import 'package:tinytuya/src/bulb_device.dart';
 
 /// Helper to run Python test script
 Future<Map<String, dynamic>> runPythonColorTest() async {
-  final result = await Process.run(
-    'python3',
-    ['test/comparison_tests/python_scripts/test_bulb_color_conversion.py'],
-  );
+  final result = await Process.run('python3', [
+    'test/comparison_tests/python_scripts/test_bulb_color_conversion.py',
+  ]);
 
   if (result.exitCode != 0) {
     throw Exception('Python test failed: ${result.stderr}');

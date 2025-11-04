@@ -146,13 +146,19 @@ class BulbDevice extends Device {
   ///   hexformat: Either "rgb8" (rrggbb0hhhssvv) or "hsv16" (hhhhssssvvvv)
   static String rgbToHexvalue(int r, int g, int b, String hexformat) {
     if (r < 0 || r > 255) {
-      throw ArgumentError('rgb_to_hexvalue: red value must be between 0 and 255');
+      throw ArgumentError(
+        'rgb_to_hexvalue: red value must be between 0 and 255',
+      );
     }
     if (g < 0 || g > 255) {
-      throw ArgumentError('rgb_to_hexvalue: green value must be between 0 and 255');
+      throw ArgumentError(
+        'rgb_to_hexvalue: green value must be between 0 and 255',
+      );
     }
     if (b < 0 || b > 255) {
-      throw ArgumentError('rgb_to_hexvalue: blue value must be between 0 and 255');
+      throw ArgumentError(
+        'rgb_to_hexvalue: blue value must be between 0 and 255',
+      );
     }
 
     // Convert RGB to HSV
@@ -161,10 +167,12 @@ class BulbDevice extends Device {
     if (hexformat == 'rgb8') {
       // r:0-255,g:0-255,b:0-255 + h:0-360,s:0-255,v:0-255
       // Use truncate() to match Python's int() behavior
-      final rgbHex = '${r.toRadixString(16).padLeft(2, '0')}'
+      final rgbHex =
+          '${r.toRadixString(16).padLeft(2, '0')}'
           '${g.toRadixString(16).padLeft(2, '0')}'
           '${b.toRadixString(16).padLeft(2, '0')}';
-      final hsvHex = '${(hsv[0] * 360).truncate().toRadixString(16).padLeft(4, '0')}'
+      final hsvHex =
+          '${(hsv[0] * 360).truncate().toRadixString(16).padLeft(4, '0')}'
           '${(hsv[1] * 255).truncate().toRadixString(16).padLeft(2, '0')}'
           '${(hsv[2] * 255).truncate().toRadixString(16).padLeft(2, '0')}';
       return rgbHex + hsvHex;
@@ -175,7 +183,9 @@ class BulbDevice extends Device {
           '${(hsv[1] * 1000).truncate().toRadixString(16).padLeft(4, '0')}'
           '${(hsv[2] * 1000).truncate().toRadixString(16).padLeft(4, '0')}';
     } else {
-      throw ArgumentError('rgb_to_hexvalue: hexformat must be either "rgb8" or "hsv16"');
+      throw ArgumentError(
+        'rgb_to_hexvalue: hexformat must be either "rgb8" or "hsv16"',
+      );
     }
   }
 
@@ -191,7 +201,9 @@ class BulbDevice extends Device {
       throw ArgumentError('hsv_to_hexvalue: Hue must be between 0 and 1');
     }
     if (s < 0 || s > 1) {
-      throw ArgumentError('hsv_to_hexvalue: Saturation must be between 0 and 1');
+      throw ArgumentError(
+        'hsv_to_hexvalue: Saturation must be between 0 and 1',
+      );
     }
     if (v < 0 || v > 1) {
       throw ArgumentError('hsv_to_hexvalue: Value must be between 0 and 1');
@@ -201,7 +213,11 @@ class BulbDevice extends Device {
       // Convert to RGB first
       final rgb = _hsvToRgb(h, s, v);
       return rgbToHexvalue(
-          (rgb[0] * 255).round(), (rgb[1] * 255).round(), (rgb[2] * 255).round(), hexformat);
+        (rgb[0] * 255).round(),
+        (rgb[1] * 255).round(),
+        (rgb[2] * 255).round(),
+        hexformat,
+      );
     } else if (hexformat == 'hsv16') {
       // h:0-360,s:0-1000,v:0-1000
       // Use truncate() to match Python's int() behavior
@@ -209,7 +225,9 @@ class BulbDevice extends Device {
           '${(s * 1000).truncate().toRadixString(16).padLeft(4, '0')}'
           '${(v * 1000).truncate().toRadixString(16).padLeft(4, '0')}';
     } else {
-      throw ArgumentError('hsv_to_hexvalue: hexformat must be either "rgb8" or "hsv16"');
+      throw ArgumentError(
+        'hsv_to_hexvalue: hexformat must be either "rgb8" or "hsv16"',
+      );
     }
   }
 
@@ -240,9 +258,15 @@ class BulbDevice extends Device {
       final s = int.parse(hexvalue.substring(4, 8), radix: 16) / 1000.0;
       final v = int.parse(hexvalue.substring(8, 12), radix: 16) / 1000.0;
       final rgb = _hsvToRgb(h, s, v);
-      return [(rgb[0] * 255).round(), (rgb[1] * 255).round(), (rgb[2] * 255).round()];
+      return [
+        (rgb[0] * 255).round(),
+        (rgb[1] * 255).round(),
+        (rgb[2] * 255).round(),
+      ];
     } else {
-      throw ArgumentError('hexvalue_to_rgb: hexformat must be null, "rgb8" or "hsv16"');
+      throw ArgumentError(
+        'hexvalue_to_rgb: hexformat must be null, "rgb8" or "hsv16"',
+      );
     }
   }
 
@@ -258,7 +282,9 @@ class BulbDevice extends Device {
 
     if (hexformat == 'rgb8') {
       if (hexvalueLen < 6) {
-        throw ArgumentError('RGB[HSV] value string must have 6 or 14 hex digits');
+        throw ArgumentError(
+          'RGB[HSV] value string must have 6 or 14 hex digits',
+        );
       }
       if (hexvalueLen < 14) {
         // hexvalue is in rgb only
@@ -281,7 +307,9 @@ class BulbDevice extends Device {
       final v = int.parse(hexvalue.substring(8, 12), radix: 16) / 1000.0;
       return [h, s, v];
     } else {
-      throw ArgumentError('hexvalue_to_hsv: hexformat must be null, "rgb8" or "hsv16"');
+      throw ArgumentError(
+        'hexvalue_to_hsv: hexformat must be null, "rgb8" or "hsv16"',
+      );
     }
   }
 
@@ -293,7 +321,8 @@ class BulbDevice extends Device {
       return 'hsv16';
     } else {
       throw ArgumentError(
-          'Unable to detect hexvalue format. Value string must have 6, 12 or 14 hex digits.');
+        'Unable to detect hexvalue format. Value string must have 6, 12 or 14 hex digits.',
+      );
     }
   }
 
@@ -371,7 +400,9 @@ class BulbDevice extends Device {
     if (!bulbConfigured) {
       detectBulb();
       if (!bulbConfigured) {
-        throw StateError('Bulb not configured, cannot get device capabilities.');
+        throw StateError(
+          'Bulb not configured, cannot get device capabilities.',
+        );
       }
     }
     return dpset[feature] != null;
@@ -393,7 +424,8 @@ class BulbDevice extends Device {
         final dp = dpset[key];
         if (dp != null) {
           final dpStr = dp.toString();
-          if (!stateDps.containsKey(dpStr) || stateDps[dpStr] != checkValues[key]) {
+          if (!stateDps.containsKey(dpStr) ||
+              stateDps[dpStr] != checkValues[key]) {
             dpsValues[dpStr] = checkValues[key];
           }
         }
@@ -414,7 +446,11 @@ class BulbDevice extends Device {
   }
 
   /// Turn the bulb on or off
-  Future<Map<String, dynamic>> turnOnOff(bool on, {int switchDp = 0, bool nowait = false}) async {
+  Future<Map<String, dynamic>> turnOnOff(
+    bool on, {
+    int switchDp = 0,
+    bool nowait = false,
+  }) async {
     if (switchDp == 0) {
       if (!triedStatus) {
         detectBulb();
@@ -422,39 +458,53 @@ class BulbDevice extends Device {
       // Default to '1' if we can't detect it
       switchDp = dpset['switch'] ?? 1;
     }
-    return await setStatus(on: on, switchNum: switchDp.toString(), nowait: nowait);
+    return await setStatus(
+      on: on,
+      switchNum: switchDp.toString(),
+      nowait: nowait,
+    );
   }
 
   /// Turn the bulb on
   @override
-  Future<Map<String, dynamic>> turnOn({String switchNum = '1', bool nowait = false}) async {
+  Future<Map<String, dynamic>> turnOn({
+    String switchNum = '1',
+    bool nowait = false,
+  }) async {
     final switchDp = int.tryParse(switchNum) ?? 0;
     return await turnOnOff(true, switchDp: switchDp, nowait: nowait);
   }
 
   /// Turn the bulb off
   @override
-  Future<Map<String, dynamic>> turnOff({String switchNum = '1', bool nowait = false}) async {
+  Future<Map<String, dynamic>> turnOff({
+    String switchNum = '1',
+    bool nowait = false,
+  }) async {
     final switchDp = int.tryParse(switchNum) ?? 0;
     return await turnOnOff(false, switchDp: switchDp, nowait: nowait);
   }
 
   /// Set bulb mode (white, colour, scene, music)
-  Future<Map<String, dynamic>> setMode(String mode, {bool nowait = false}) async {
+  Future<Map<String, dynamic>> setMode(
+    String mode, {
+    bool nowait = false,
+  }) async {
     if (!bulbHasCapability('mode')) {
       return {'Error': 'Bulb does not support mode setting'};
     }
 
-    final checkValues = {
-      'mode': mode,
-      'switch': true,
-    };
+    final checkValues = {'mode': mode, 'switch': true};
 
     return await _setValuesCheck(checkValues, nowait: nowait);
   }
 
   /// Set bulb to scene mode
-  Future<Map<String, dynamic>> setScene(int scene, {String? sceneData, bool nowait = false}) async {
+  Future<Map<String, dynamic>> setScene(
+    int scene, {
+    String? sceneData,
+    bool nowait = false,
+  }) async {
     if (!bulbHasCapability('scene')) {
       return {'Error': 'Bulb does not support scenes'};
     }
@@ -464,7 +514,9 @@ class BulbDevice extends Device {
     // Type A: scene idx is part of the mode
     if (dpset['scene_data'] == null || dpset['scene_data'] == dpset['mode']) {
       if (scene < 1 || scene > 4) {
-        throw ArgumentError('Scene value must be between 1 and 4 for Type A bulbs');
+        throw ArgumentError(
+          'Scene value must be between 1 and 4 for Type A bulbs',
+        );
       }
       dpsValues['mode'] = '${dpsModeScene}_$scene';
     } else {
@@ -474,7 +526,8 @@ class BulbDevice extends Device {
       dpsValues['mode'] = dpsModeScene;
 
       if (sceneData != null) {
-        if (dpset['scene_data'] == true || dpset['scene_data'] == dpset['scene']) {
+        if (dpset['scene_data'] == true ||
+            dpset['scene_data'] == dpset['scene']) {
           dpsValues['scene'] = sceneHex + sceneData;
         } else {
           dpsValues['scene_data'] = sceneData;
@@ -486,7 +539,12 @@ class BulbDevice extends Device {
   }
 
   /// Set bulb color using RGB values (0-255)
-  Future<Map<String, dynamic>> setColour(int r, int g, int b, {bool nowait = false}) async {
+  Future<Map<String, dynamic>> setColour(
+    int r,
+    int g,
+    int b, {
+    bool nowait = false,
+  }) async {
     if (!bulbHasCapability('colour')) {
       return {'Error': 'Device does not support color'};
     }
@@ -501,7 +559,12 @@ class BulbDevice extends Device {
   }
 
   /// Set bulb color using HSV values (0-1)
-  Future<Map<String, dynamic>> setHsv(double h, double s, double v, {bool nowait = false}) async {
+  Future<Map<String, dynamic>> setHsv(
+    double h,
+    double s,
+    double v, {
+    bool nowait = false,
+  }) async {
     if (!bulbHasCapability('colour')) {
       return {'Error': 'Device does not support color'};
     }
@@ -578,7 +641,10 @@ class BulbDevice extends Device {
   }
 
   /// Set brightness (percentage 0-100)
-  Future<Map<String, dynamic>> setBrightnessPercentage(int brightness, {bool nowait = false}) async {
+  Future<Map<String, dynamic>> setBrightnessPercentage(
+    int brightness, {
+    bool nowait = false,
+  }) async {
     if (brightness < 0 || brightness > 100) {
       throw ArgumentError('Brightness must be between 0 and 100');
     }
@@ -588,7 +654,10 @@ class BulbDevice extends Device {
   }
 
   /// Set brightness (raw value based on bulb type)
-  Future<Map<String, dynamic>> setBrightness(int brightness, {bool nowait = false}) async {
+  Future<Map<String, dynamic>> setBrightness(
+    int brightness, {
+    bool nowait = false,
+  }) async {
     if (!bulbHasCapability('brightness')) {
       return {'Error': 'Device does not support brightness'};
     }
@@ -612,11 +681,17 @@ class BulbDevice extends Device {
 
     final modeDp = dpset['mode'];
     final stateDps = state['dps'] as Map<String, dynamic>?;
-    final currentMode = modeDp != null && stateDps != null ? stateDps[modeDp.toString()] : null;
+    final currentMode = modeDp != null && stateDps != null
+        ? stateDps[modeDp.toString()]
+        : null;
 
     if (currentMode != dpsModeColour) {
       // Use white mode
-      return await setWhite(brightness: brightness, colourtemp: -1, nowait: nowait);
+      return await setWhite(
+        brightness: brightness,
+        colourtemp: -1,
+        nowait: nowait,
+      );
     } else {
       // For colour mode, adjust HSV value
       final value = brightness / valueMax.toDouble();
@@ -625,18 +700,26 @@ class BulbDevice extends Device {
         return {'Error': 'Colour DP not available'};
       }
 
-      final colourHex = stateDps != null ? stateDps[colourDp.toString()] as String? : null;
+      final colourHex = stateDps != null
+          ? stateDps[colourDp.toString()] as String?
+          : null;
       if (colourHex == null) {
         return {'Error': 'Could not get current colour'};
       }
 
-      final hsv = hexvalueToHsv(colourHex, hexformat: dpset['value_hexformat'] as String);
+      final hsv = hexvalueToHsv(
+        colourHex,
+        hexformat: dpset['value_hexformat'] as String,
+      );
       return await setHsv(hsv[0], hsv[1], value, nowait: nowait);
     }
   }
 
   /// Set color temperature (percentage 0-100)
-  Future<Map<String, dynamic>> setColourTempPercentage(int colourtemp, {bool nowait = false}) async {
+  Future<Map<String, dynamic>> setColourTempPercentage(
+    int colourtemp, {
+    bool nowait = false,
+  }) async {
     if (colourtemp < 0 || colourtemp > 100) {
       throw ArgumentError('Colourtemp must be between 0 and 100');
     }
@@ -646,7 +729,10 @@ class BulbDevice extends Device {
   }
 
   /// Set color temperature (raw value based on bulb type)
-  Future<Map<String, dynamic>> setColourTemp(int colourtemp, {bool nowait = false}) async {
+  Future<Map<String, dynamic>> setColourTemp(
+    int colourtemp, {
+    bool nowait = false,
+  }) async {
     if (!bulbHasCapability('colourtemp')) {
       return {'Error': 'Device does not support color temperature'};
     }
@@ -659,7 +745,11 @@ class BulbDevice extends Device {
       throw ArgumentError('Colourtemp must be between 0 and $valueMax');
     }
 
-    return await setWhite(brightness: -1, colourtemp: colourtemp, nowait: nowait);
+    return await setWhite(
+      brightness: -1,
+      colourtemp: colourtemp,
+      nowait: nowait,
+    );
   }
 
   /// Detect bulb type and capabilities from status response

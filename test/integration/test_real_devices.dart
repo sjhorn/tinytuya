@@ -231,7 +231,8 @@ Future<void> testOutlet(DeviceConfig config) async {
 
 /// Scan network and verify configured devices are present
 Future<Map<String, DiscoveredDevice>> scanAndVerify(
-    List<DeviceConfig> devices) async {
+  List<DeviceConfig> devices,
+) async {
   print('${'=' * 70}');
   print('Step 1: Scanning local network for Tuya devices...');
   print('${'=' * 70}');
@@ -286,9 +287,15 @@ Future<Map<String, DiscoveredDevice>> scanAndVerify(
 }
 
 void main() async {
-  print('╔════════════════════════════════════════════════════════════════════╗');
-  print('║            TinyTuya Dart - Real Device Test Suite                 ║');
-  print('╚════════════════════════════════════════════════════════════════════╝');
+  print(
+    '╔════════════════════════════════════════════════════════════════════╗',
+  );
+  print(
+    '║            TinyTuya Dart - Real Device Test Suite                 ║',
+  );
+  print(
+    '╚════════════════════════════════════════════════════════════════════╝',
+  );
   print('');
 
   // Load device configuration
@@ -318,7 +325,13 @@ void main() async {
     await Future.delayed(Duration(seconds: 1));
   }
 
-  print('╔════════════════════════════════════════════════════════════════════╗');
-  print('║                    All Tests Completed!                           ║');
-  print('╚════════════════════════════════════════════════════════════════════╝');
+  print(
+    '╔════════════════════════════════════════════════════════════════════╗',
+  );
+  print(
+    '║                    All Tests Completed!                           ║',
+  );
+  print(
+    '╚════════════════════════════════════════════════════════════════════╝',
+  );
 }

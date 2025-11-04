@@ -38,7 +38,8 @@ void main() {
         command: control,
         data: {'1': true},
       );
-      final dartPayloadData = jsonDecode(utf8.decode(payload.payload)) as Map<String, dynamic>;
+      final dartPayloadData =
+          jsonDecode(utf8.decode(payload.payload)) as Map<String, dynamic>;
 
       print('Python command: ${pythonOutput['command']}');
       print('Dart   command: ${payload.cmd}');
@@ -46,9 +47,18 @@ void main() {
       print('Dart   payload: $dartPayloadData');
 
       expect(payload.cmd, equals(pythonOutput['command']));
-      expect(dartPayloadData['devId'], equals(pythonOutput['payload_data']['devId']));
-      expect(dartPayloadData['uid'], equals(pythonOutput['payload_data']['uid']));
-      expect(dartPayloadData['dps'], equals(pythonOutput['payload_data']['dps']));
+      expect(
+        dartPayloadData['devId'],
+        equals(pythonOutput['payload_data']['devId']),
+      );
+      expect(
+        dartPayloadData['uid'],
+        equals(pythonOutput['payload_data']['uid']),
+      );
+      expect(
+        dartPayloadData['dps'],
+        equals(pythonOutput['payload_data']['dps']),
+      );
     });
 
     test('turnOff() - compare with Python', () async {
@@ -79,7 +89,8 @@ void main() {
         command: control,
         data: {'2': false},
       );
-      final dartPayloadData = jsonDecode(utf8.decode(payload.payload)) as Map<String, dynamic>;
+      final dartPayloadData =
+          jsonDecode(utf8.decode(payload.payload)) as Map<String, dynamic>;
 
       print('Python command: ${pythonOutput['command']}');
       print('Dart   command: ${payload.cmd}');
@@ -87,7 +98,10 @@ void main() {
       print('Dart   payload: $dartPayloadData');
 
       expect(payload.cmd, equals(pythonOutput['command']));
-      expect(dartPayloadData['dps'], equals(pythonOutput['payload_data']['dps']));
+      expect(
+        dartPayloadData['dps'],
+        equals(pythonOutput['payload_data']['dps']),
+      );
     });
 
     test('setTimer() - compare with Python', () async {
@@ -119,7 +133,8 @@ void main() {
         command: control,
         data: {'7': 3600},
       );
-      final dartPayloadData = jsonDecode(utf8.decode(payload.payload)) as Map<String, dynamic>;
+      final dartPayloadData =
+          jsonDecode(utf8.decode(payload.payload)) as Map<String, dynamic>;
 
       print('Python command: ${pythonOutput['command']}');
       print('Dart   command: ${payload.cmd}');
@@ -127,7 +142,10 @@ void main() {
       print('Dart   payload: $dartPayloadData');
 
       expect(payload.cmd, equals(pythonOutput['command']));
-      expect(dartPayloadData['dps']['7'], equals(pythonOutput['payload_data']['dps']['7']));
+      expect(
+        dartPayloadData['dps']['7'],
+        equals(pythonOutput['payload_data']['dps']['7']),
+      );
     });
 
     test('updateDps() - compare with Python', () async {
@@ -158,7 +176,8 @@ void main() {
         command: updatedps,
         data: [1, 2, 3],
       );
-      final dartPayloadData = jsonDecode(utf8.decode(payload.payload)) as Map<String, dynamic>;
+      final dartPayloadData =
+          jsonDecode(utf8.decode(payload.payload)) as Map<String, dynamic>;
 
       print('Python command: ${pythonOutput['command']}');
       print('Dart   command: ${payload.cmd}');
@@ -166,7 +185,10 @@ void main() {
       print('Dart   payload: $dartPayloadData');
 
       expect(payload.cmd, equals(pythonOutput['command']));
-      expect(dartPayloadData['dpId'], equals(pythonOutput['payload_data']['dpId']));
+      expect(
+        dartPayloadData['dpId'],
+        equals(pythonOutput['payload_data']['dpId']),
+      );
     });
   });
 }

@@ -7,10 +7,14 @@ import '../lib/src/core/aes_ecb.dart';
 void main() {
   group('AES-128 ECB Tests', () {
     test('Encrypt/decrypt single block', () {
-      final key = Uint8List.fromList(utf8.encode('0123456789abcdef')); // 16 bytes
+      final key = Uint8List.fromList(
+        utf8.encode('0123456789abcdef'),
+      ); // 16 bytes
       final cipher = AesEcb(key);
 
-      final plaintext = Uint8List.fromList(utf8.encode('Hello, World!123')); // 16 bytes
+      final plaintext = Uint8List.fromList(
+        utf8.encode('Hello, World!123'),
+      ); // 16 bytes
       final encrypted = cipher.encryptBlock(plaintext);
 
       expect(encrypted.length, equals(16));
@@ -21,11 +25,15 @@ void main() {
     });
 
     test('Encrypt/decrypt multiple blocks', () {
-      final key = Uint8List.fromList(utf8.encode('my_secret_key_16')); // 16 bytes
+      final key = Uint8List.fromList(
+        utf8.encode('my_secret_key_16'),
+      ); // 16 bytes
       final cipher = AesEcb(key);
 
       // 32 bytes = 2 blocks
-      final plaintext = Uint8List.fromList(utf8.encode('This is a test message!!12345678')); // 32 bytes
+      final plaintext = Uint8List.fromList(
+        utf8.encode('This is a test message!!12345678'),
+      ); // 32 bytes
 
       final encrypted = cipher.encrypt(plaintext);
       expect(encrypted.length, equals(32));
@@ -73,18 +81,60 @@ void main() {
       // Ciphertext: 3ad77bb40d7a3660a89ecaf32466ef97
 
       final key = Uint8List.fromList([
-        0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
-        0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c,
+        0x2b,
+        0x7e,
+        0x15,
+        0x16,
+        0x28,
+        0xae,
+        0xd2,
+        0xa6,
+        0xab,
+        0xf7,
+        0x15,
+        0x88,
+        0x09,
+        0xcf,
+        0x4f,
+        0x3c,
       ]);
 
       final plaintext = Uint8List.fromList([
-        0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96,
-        0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a,
+        0x6b,
+        0xc1,
+        0xbe,
+        0xe2,
+        0x2e,
+        0x40,
+        0x9f,
+        0x96,
+        0xe9,
+        0x3d,
+        0x7e,
+        0x11,
+        0x73,
+        0x93,
+        0x17,
+        0x2a,
       ]);
 
       final expectedCiphertext = Uint8List.fromList([
-        0x3a, 0xd7, 0x7b, 0xb4, 0x0d, 0x7a, 0x36, 0x60,
-        0xa8, 0x9e, 0xca, 0xf3, 0x24, 0x66, 0xef, 0x97,
+        0x3a,
+        0xd7,
+        0x7b,
+        0xb4,
+        0x0d,
+        0x7a,
+        0x36,
+        0x60,
+        0xa8,
+        0x9e,
+        0xca,
+        0xf3,
+        0x24,
+        0x66,
+        0xef,
+        0x97,
       ]);
 
       final cipher = AesEcb(key);
@@ -100,10 +150,7 @@ void main() {
     test('Invalid key length throws error', () {
       final shortKey = Uint8List(8); // Only 8 bytes
 
-      expect(
-        () => AesEcb(shortKey),
-        throwsA(isA<ArgumentError>()),
-      );
+      expect(() => AesEcb(shortKey), throwsA(isA<ArgumentError>()));
     });
 
     test('Invalid block length throws error', () {
@@ -122,10 +169,7 @@ void main() {
       final cipher = AesEcb(key);
       final data = Uint8List(17); // Not multiple of 16
 
-      expect(
-        () => cipher.encrypt(data),
-        throwsA(isA<ArgumentError>()),
-      );
+      expect(() => cipher.encrypt(data), throwsA(isA<ArgumentError>()));
     });
   });
 }

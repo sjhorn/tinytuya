@@ -11,18 +11,31 @@ import 'header.dart';
 import 'message_helper.dart';
 
 /// UDP packet decryption key - from tuya-convert
-final Uint8List udpKey = Uint8List.fromList(md5.convert(utf8.encode('yGAdlopoPVldABfn')).bytes);
+final Uint8List udpKey = Uint8List.fromList(
+  md5.convert(utf8.encode('yGAdlopoPVldABfn')).bytes,
+);
 
 /// Encrypt a message with a key
 Future<Uint8List> encrypt(Uint8List msg, Uint8List key) async {
   final cipher = AESCipher(key);
-  return await cipher.encrypt(raw: msg, useBase64: false, usePad: true, useIv: false);
+  return await cipher.encrypt(
+    raw: msg,
+    useBase64: false,
+    usePad: true,
+    useIv: false,
+  );
 }
 
 /// Decrypt a message with a key
 Future<String> decrypt(Uint8List msg, Uint8List key) async {
   final cipher = AESCipher(key);
-  return await cipher.decrypt(enc: msg, useBase64: false, decodeText: true, useIv: false) as String;
+  return await cipher.decrypt(
+        enc: msg,
+        useBase64: false,
+        decodeText: true,
+        useIv: false,
+      )
+      as String;
 }
 
 /// Decrypt UDP broadcast packet
@@ -53,7 +66,8 @@ Future<String> decryptUdp(Uint8List msg) async {
       try {
         if (payload.isNotEmpty &&
             payload[0] == 0x7B && // '{'
-            payload[payload.length - 1] == 0x7D) { // '}'
+            payload[payload.length - 1] == 0x7D) {
+          // '}'
           return utf8.decode(payload);
         }
       } catch (e) {
@@ -89,7 +103,11 @@ Future<String> decryptUdp(Uint8List msg) async {
       if (msg.length > 20) {
         // Extract IV (12 bytes after header) and encrypted data
         final iv = Uint8List.sublistView(msg, 20, 32);
-        final encryptedData = Uint8List.sublistView(msg, 32, msg.length - 4); // Skip 4-byte suffix
+        final encryptedData = Uint8List.sublistView(
+          msg,
+          32,
+          msg.length - 4,
+        ); // Skip 4-byte suffix
 
         // Use GCM decryption
         final cipher = AESCipher(udpKey);

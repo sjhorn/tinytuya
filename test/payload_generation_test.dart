@@ -24,8 +24,11 @@ void main() {
       );
       final pythonOutput = jsonDecode(pythonOutputStr) as Map<String, dynamic>;
 
-      expect(pythonOutput['success'], isTrue,
-             reason: 'Python test should succeed');
+      expect(
+        pythonOutput['success'],
+        isTrue,
+        reason: 'Python test should succeed',
+      );
 
       // Run Dart version
       final device = Device(
@@ -38,7 +41,8 @@ void main() {
       final payload = device.generatePayload(command: status);
 
       // Parse Dart payload
-      final dartPayloadData = jsonDecode(utf8.decode(payload.payload)) as Map<String, dynamic>;
+      final dartPayloadData =
+          jsonDecode(utf8.decode(payload.payload)) as Map<String, dynamic>;
 
       print('Python command: ${pythonOutput['command']}');
       print('Dart   command: ${payload.cmd}');
@@ -46,16 +50,28 @@ void main() {
       print('Dart   payload: $dartPayloadData');
 
       // Compare command
-      expect(payload.cmd, equals(pythonOutput['command']),
-             reason: 'Command should match');
+      expect(
+        payload.cmd,
+        equals(pythonOutput['command']),
+        reason: 'Command should match',
+      );
 
       // Compare payload structure (excluding timestamp 't' which will differ)
-      expect(dartPayloadData['devId'], equals(pythonOutput['payload_data']['devId']),
-             reason: 'devId should match');
-      expect(dartPayloadData['gwId'], equals(pythonOutput['payload_data']['gwId']),
-             reason: 'gwId should match');
-      expect(dartPayloadData.containsKey('t'), equals(pythonOutput['payload_data'].containsKey('t')),
-             reason: 'Both should have or not have timestamp');
+      expect(
+        dartPayloadData['devId'],
+        equals(pythonOutput['payload_data']['devId']),
+        reason: 'devId should match',
+      );
+      expect(
+        dartPayloadData['gwId'],
+        equals(pythonOutput['payload_data']['gwId']),
+        reason: 'gwId should match',
+      );
+      expect(
+        dartPayloadData.containsKey('t'),
+        equals(pythonOutput['payload_data'].containsKey('t')),
+        reason: 'Both should have or not have timestamp',
+      );
     });
 
     test('Generate CONTROL payload with data - compare with Python', () async {
@@ -74,8 +90,11 @@ void main() {
       );
       final pythonOutput = jsonDecode(pythonOutputStr) as Map<String, dynamic>;
 
-      expect(pythonOutput['success'], isTrue,
-             reason: 'Python test should succeed');
+      expect(
+        pythonOutput['success'],
+        isTrue,
+        reason: 'Python test should succeed',
+      );
 
       // Run Dart version
       final device = Device(
@@ -91,7 +110,8 @@ void main() {
       );
 
       // Parse Dart payload
-      final dartPayloadData = jsonDecode(utf8.decode(payload.payload)) as Map<String, dynamic>;
+      final dartPayloadData =
+          jsonDecode(utf8.decode(payload.payload)) as Map<String, dynamic>;
 
       print('Python command: ${pythonOutput['command']}');
       print('Dart   command: ${payload.cmd}');
@@ -99,12 +119,18 @@ void main() {
       print('Dart   payload: $dartPayloadData');
 
       // Compare command
-      expect(payload.cmd, equals(pythonOutput['command']),
-             reason: 'Command should match');
+      expect(
+        payload.cmd,
+        equals(pythonOutput['command']),
+        reason: 'Command should match',
+      );
 
       // Compare dps data
-      expect(dartPayloadData['dps'], equals(pythonOutput['payload_data']['dps']),
-             reason: 'DPS data should match');
+      expect(
+        dartPayloadData['dps'],
+        equals(pythonOutput['payload_data']['dps']),
+        reason: 'DPS data should match',
+      );
     });
 
     test('Generate payload for v3.4 device - compare with Python', () async {
@@ -123,8 +149,11 @@ void main() {
       );
       final pythonOutput = jsonDecode(pythonOutputStr) as Map<String, dynamic>;
 
-      expect(pythonOutput['success'], isTrue,
-             reason: 'Python test should succeed');
+      expect(
+        pythonOutput['success'],
+        isTrue,
+        reason: 'Python test should succeed',
+      );
 
       // Run Dart version
       final device = Device(
@@ -140,7 +169,8 @@ void main() {
       );
 
       // Parse Dart payload
-      final dartPayloadData = jsonDecode(utf8.decode(payload.payload)) as Map<String, dynamic>;
+      final dartPayloadData =
+          jsonDecode(utf8.decode(payload.payload)) as Map<String, dynamic>;
 
       print('Python command: ${pythonOutput['command']}');
       print('Dart   command: ${payload.cmd}');
@@ -148,14 +178,23 @@ void main() {
       print('Dart   payload: $dartPayloadData');
 
       // v3.4+ uses CONTROL_NEW (0x0d) instead of CONTROL (0x07)
-      expect(payload.cmd, equals(pythonOutput['command']),
-             reason: 'Command should be overridden to CONTROL_NEW');
+      expect(
+        payload.cmd,
+        equals(pythonOutput['command']),
+        reason: 'Command should be overridden to CONTROL_NEW',
+      );
 
       // v3.4+ has different payload structure
-      expect(dartPayloadData.containsKey('protocol'), isTrue,
-             reason: 'v3.4 should have protocol field');
-      expect(dartPayloadData.containsKey('data'), isTrue,
-             reason: 'v3.4 should have data field');
+      expect(
+        dartPayloadData.containsKey('protocol'),
+        isTrue,
+        reason: 'v3.4 should have protocol field',
+      );
+      expect(
+        dartPayloadData.containsKey('data'),
+        isTrue,
+        reason: 'v3.4 should have data field',
+      );
     });
   });
 }

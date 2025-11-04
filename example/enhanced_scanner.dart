@@ -6,9 +6,15 @@
 import 'package:tinytuya/tinytuya.dart';
 
 void main() async {
-  print('╔════════════════════════════════════════════════════════════════════╗');
-  print('║              TinyTuya Dart - Network Scanner                       ║');
-  print('╚════════════════════════════════════════════════════════════════════╝');
+  print(
+    '╔════════════════════════════════════════════════════════════════════╗',
+  );
+  print(
+    '║              TinyTuya Dart - Network Scanner                       ║',
+  );
+  print(
+    '╚════════════════════════════════════════════════════════════════════╝',
+  );
   print('');
   print('Scanning for Tuya devices on local network...');
   print('Scan duration: 15 seconds');
@@ -47,7 +53,9 @@ void main() async {
   // Display devices grouped by version
   for (final version in byVersion.keys.toList()..sort()) {
     final versionDevices = byVersion[version]!;
-    print('Protocol v$version (${versionDevices.length} device${versionDevices.length != 1 ? 's' : ''})');
+    print(
+      'Protocol v$version (${versionDevices.length} device${versionDevices.length != 1 ? 's' : ''})',
+    );
     print('${'─' * 70}');
 
     for (var i = 0; i < versionDevices.length; i++) {
@@ -109,5 +117,7 @@ void main() async {
   }
 
   print('For more information on getting local keys, see:');
-  print('https://github.com/jasonacox/tinytuya#setup-wizard---getting-local-keys');
+  print(
+    'https://github.com/jasonacox/tinytuya#setup-wizard---getting-local-keys',
+  );
 }

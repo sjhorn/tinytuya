@@ -107,7 +107,9 @@ void main() {
 
     test('GCM with header (AAD)', () async {
       final cipher = AESCipher.fromString('test_key_1234567890abcdef');
-      final plaintext = Uint8List.fromList(utf8.encode('Authenticated Message'));
+      final plaintext = Uint8List.fromList(
+        utf8.encode('Authenticated Message'),
+      );
       final header = Uint8List.fromList(utf8.encode('header_data'));
 
       // Encrypt with header

@@ -87,8 +87,8 @@ void main() async {
     print('Sending command to device: $deviceId');
     final command = {
       'commands': [
-        {'code': 'switch_1', 'value': true}
-      ]
+        {'code': 'switch_1', 'value': true},
+      ],
     };
 
     final result = await cloud.sendCommand(deviceId, command);

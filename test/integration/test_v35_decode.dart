@@ -71,7 +71,6 @@ void main() async {
     if (finalStatus.containsKey('dps')) {
       print('✓ DPS data: ${finalStatus['dps']}');
     }
-
   } catch (e, stack) {
     print('✗ Exception: $e');
     print('Stack trace: $stack');

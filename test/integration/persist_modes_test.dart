@@ -12,7 +12,9 @@ void main() {
     test('persist=false closes socket after each operation', () async {
       final config = await loadDeviceConfig();
       if (config == null) {
-        print('Skipped: No devices.json found. Copy test/integration/devices.json.example and fill in device credentials to run integration tests');
+        print(
+          'Skipped: No devices.json found. Copy test/integration/devices.json.example and fill in device credentials to run integration tests',
+        );
         return;
       }
 
@@ -64,7 +66,9 @@ void main() {
     test('persist=true keeps socket open between operations', () async {
       final config = await loadDeviceConfig();
       if (config == null) {
-        print('Skipped: No devices.json found. Copy test/integration/devices.json.example and fill in device credentials to run integration tests');
+        print(
+          'Skipped: No devices.json found. Copy test/integration/devices.json.example and fill in device credentials to run integration tests',
+        );
         return;
       }
 
@@ -87,7 +91,11 @@ void main() {
       try {
         final status1 = await device.status();
         expect(status1['success'], isTrue);
-        expect(device.isSocketActive, isTrue, reason: 'Socket should stay open with persist=true');
+        expect(
+          device.isSocketActive,
+          isTrue,
+          reason: 'Socket should stay open with persist=true',
+        );
         print('✓ Status query 1 successful - socket still open');
 
         await Future.delayed(const Duration(milliseconds: 100));
@@ -110,7 +118,9 @@ void main() {
         expect(turnOffResult['success'], isTrue);
         print('✓ Turn OFF successful');
 
-        print('\n✅ persist=true: All operations successful, socket stayed open');
+        print(
+          '\n✅ persist=true: All operations successful, socket stayed open',
+        );
       } finally {
         device.close();
       }

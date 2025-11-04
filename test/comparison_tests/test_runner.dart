@@ -23,7 +23,10 @@ class ComparisonTestCase {
 }
 
 /// Run a Python script and capture its output
-Future<String> runPythonTest(String scriptPath, Map<String, dynamic> input) async {
+Future<String> runPythonTest(
+  String scriptPath,
+  Map<String, dynamic> input,
+) async {
   // Create unique temp file to avoid race conditions
   final tempDir = Directory.systemTemp;
   final timestamp = DateTime.now().microsecondsSinceEpoch;
@@ -31,10 +34,7 @@ Future<String> runPythonTest(String scriptPath, Map<String, dynamic> input) asyn
   await inputFile.writeAsString(jsonEncode(input));
 
   try {
-    final result = await Process.run(
-      'python3',
-      [scriptPath, inputFile.path],
-    );
+    final result = await Process.run('python3', [scriptPath, inputFile.path]);
 
     if (result.exitCode != 0) {
       throw Exception('Python test failed: ${result.stderr}');
@@ -56,12 +56,18 @@ void compareOutputs(String pythonOutput, String dartOutput, String testName) {
     try {
       final pythonJson = jsonDecode(pythonOutput);
       final dartJson = jsonDecode(dartOutput);
-      expect(dartJson, equals(pythonJson),
-             reason: 'Dart output should match Python output');
+      expect(
+        dartJson,
+        equals(pythonJson),
+        reason: 'Dart output should match Python output',
+      );
     } catch (e) {
       // If not JSON, compare as strings
-      expect(dartOutput, equals(pythonOutput),
-             reason: 'Dart output should match Python output');
+      expect(
+        dartOutput,
+        equals(pythonOutput),
+        reason: 'Dart output should match Python output',
+      );
     }
   });
 }

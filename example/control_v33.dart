@@ -47,7 +47,6 @@ void main() async {
     // Get final status
     result = await device.status();
     print('DPS 1 after OFF: ${result['dps']?["1"]}');
-
   } catch (e) {
     print('Error: $e');
   } finally {

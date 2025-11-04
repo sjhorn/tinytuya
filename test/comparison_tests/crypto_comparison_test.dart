@@ -26,7 +26,9 @@ void main() {
 
       // Run Dart version
       final cipher = AESCipher.fromString(testInput['key']!);
-      final plaintext = Uint8List.fromList(utf8.encode(testInput['plaintext']!));
+      final plaintext = Uint8List.fromList(
+        utf8.encode(testInput['plaintext']!),
+      );
 
       // Python's AESCipher.encrypt() uses base64=True, pad=True, iv=False by default
       final encrypted = await cipher.encrypt(
@@ -39,8 +41,11 @@ void main() {
       print('Python encrypted (base64): ${pythonOutput['encrypted']}');
       print('Dart   encrypted (base64): $encrypted');
 
-      expect(encrypted, equals(pythonOutput['encrypted']),
-             reason: 'Dart and Python ECB encryption should match');
+      expect(
+        encrypted,
+        equals(pythonOutput['encrypted']),
+        reason: 'Dart and Python ECB encryption should match',
+      );
     });
 
     test('AES-ECB roundtrip - compare with Python', () async {
@@ -55,7 +60,8 @@ void main() {
         'test/comparison_tests/python_scripts/test_crypto.py',
         encryptInput,
       );
-      final pythonEncryptOutput = jsonDecode(pythonEncryptOutputStr) as Map<String, dynamic>;
+      final pythonEncryptOutput =
+          jsonDecode(pythonEncryptOutputStr) as Map<String, dynamic>;
 
       // Now decrypt with Dart
       final cipher = AESCipher.fromString(encryptInput['key']!);
@@ -69,8 +75,11 @@ void main() {
       print('Original plaintext: ${encryptInput['plaintext']}');
       print('Dart   decrypted:   $decrypted');
 
-      expect(decrypted, equals(encryptInput['plaintext']),
-             reason: 'Dart should decrypt Python-encrypted data correctly');
+      expect(
+        decrypted,
+        equals(encryptInput['plaintext']),
+        reason: 'Dart should decrypt Python-encrypted data correctly',
+      );
     });
   });
 }

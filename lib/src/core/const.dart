@@ -5,7 +5,8 @@ library;
 
 // Globals Network Settings
 const int maxCount = 15; // How many tries before stopping
-const int scanTime = 18; // How many seconds to wait before stopping device discovery
+const int scanTime =
+    18; // How many seconds to wait before stopping device discovery
 const int udpPort = 6666; // Tuya 3.1 UDP Port
 const int udpPortS = 6667; // Tuya 3.3 encrypted UDP Port
 const int udpPortApp = 7000; // Tuya app encrypted UDP Port

@@ -39,7 +39,10 @@ Future<({Map<String, dynamic> result, int retries})> _retryOperation(
     try {
       final result = await operation().timeout(
         Duration(milliseconds: timeoutMs),
-        onTimeout: () => {'success': false, 'error': 'Operation timed out after ${timeoutMs}ms'},
+        onTimeout: () => {
+          'success': false,
+          'error': 'Operation timed out after ${timeoutMs}ms',
+        },
       );
 
       // Check if operation succeeded
@@ -60,19 +63,27 @@ Future<({Map<String, dynamic> result, int retries})> _retryOperation(
     } catch (e) {
       // Exception occurred - retry if we have attempts left
       if (retries < maxRetries) {
-        print('    ↻ Retry ${retries + 1}/$maxRetries for $operationName (error: $e)');
+        print(
+          '    ↻ Retry ${retries + 1}/$maxRetries for $operationName (error: $e)',
+        );
         retries++;
         await Future.delayed(const Duration(milliseconds: 50));
         continue;
       }
 
       // Out of retries - return error
-      return (result: {'success': false, 'error': e.toString()}, retries: retries);
+      return (
+        result: {'success': false, 'error': e.toString()},
+        retries: retries,
+      );
     }
   }
 
   // Should never reach here
-  return (result: {'success': false, 'error': 'Max retries exceeded'}, retries: maxRetries);
+  return (
+    result: {'success': false, 'error': 'Max retries exceeded'},
+    retries: maxRetries,
+  );
 }
 
 /// Stress test a single device with rapid consecutive operations
@@ -110,7 +121,9 @@ Future<List<TestResult>> stressTestDevice(
     final timeoutMs = version >= 3.5 ? 1500 : (version >= 3.4 ? 1000 : 500);
 
     print('Starting stress test at ${DateTime.now()}...');
-    print('Retry strategy: $maxRetries retries, ${timeoutMs}ms timeout for v$version devices\n');
+    print(
+      'Retry strategy: $maxRetries retries, ${timeoutMs}ms timeout for v$version devices\n',
+    );
 
     for (var i = 1; i <= cycles; i++) {
       print('Cycle $i/$cycles:');
@@ -126,24 +139,32 @@ Future<List<TestResult>> stressTestDevice(
       final onDuration = DateTime.now().difference(onStart);
 
       if (onResult.result['success'] == true) {
-        final retryInfo = onResult.retries > 0 ? ' (${onResult.retries} retries)' : '';
+        final retryInfo = onResult.retries > 0
+            ? ' (${onResult.retries} retries)'
+            : '';
         print('  ✓ ON  - ${onDuration.inMilliseconds}ms$retryInfo');
-        results.add(TestResult(
-          operation: 'Cycle $i - ON',
-          success: true,
-          duration: onDuration,
-          retries: onResult.retries,
-        ));
+        results.add(
+          TestResult(
+            operation: 'Cycle $i - ON',
+            success: true,
+            duration: onDuration,
+            retries: onResult.retries,
+          ),
+        );
         successCount++;
       } else {
-        print('  ✗ ON  - FAILED after ${onResult.retries} retries: ${onResult.result}');
-        results.add(TestResult(
-          operation: 'Cycle $i - ON',
-          success: false,
-          duration: onDuration,
-          error: onResult.result.toString(),
-          retries: onResult.retries,
-        ));
+        print(
+          '  ✗ ON  - FAILED after ${onResult.retries} retries: ${onResult.result}',
+        );
+        results.add(
+          TestResult(
+            operation: 'Cycle $i - ON',
+            success: false,
+            duration: onDuration,
+            error: onResult.result.toString(),
+            retries: onResult.retries,
+          ),
+        );
         failureCount++;
       }
 
@@ -161,24 +182,32 @@ Future<List<TestResult>> stressTestDevice(
       final offDuration = DateTime.now().difference(offStart);
 
       if (offResult.result['success'] == true) {
-        final retryInfo = offResult.retries > 0 ? ' (${offResult.retries} retries)' : '';
+        final retryInfo = offResult.retries > 0
+            ? ' (${offResult.retries} retries)'
+            : '';
         print('  ✓ OFF - ${offDuration.inMilliseconds}ms$retryInfo');
-        results.add(TestResult(
-          operation: 'Cycle $i - OFF',
-          success: true,
-          duration: offDuration,
-          retries: offResult.retries,
-        ));
+        results.add(
+          TestResult(
+            operation: 'Cycle $i - OFF',
+            success: true,
+            duration: offDuration,
+            retries: offResult.retries,
+          ),
+        );
         successCount++;
       } else {
-        print('  ✗ OFF - FAILED after ${offResult.retries} retries: ${offResult.result}');
-        results.add(TestResult(
-          operation: 'Cycle $i - OFF',
-          success: false,
-          duration: offDuration,
-          error: offResult.result.toString(),
-          retries: offResult.retries,
-        ));
+        print(
+          '  ✗ OFF - FAILED after ${offResult.retries} retries: ${offResult.result}',
+        );
+        results.add(
+          TestResult(
+            operation: 'Cycle $i - OFF',
+            success: false,
+            duration: offDuration,
+            error: offResult.result.toString(),
+            retries: offResult.retries,
+          ),
+        );
         failureCount++;
       }
 
@@ -190,13 +219,19 @@ Future<List<TestResult>> stressTestDevice(
     print('TEST SUMMARY FOR ${deviceConfig['name']}');
     print('─' * 80);
     print('Total operations: ${results.length}');
-    print('Successful: $successCount (${(successCount / results.length * 100).toStringAsFixed(1)}%)');
-    print('Failed: $failureCount (${(failureCount / results.length * 100).toStringAsFixed(1)}%)');
+    print(
+      'Successful: $successCount (${(successCount / results.length * 100).toStringAsFixed(1)}%)',
+    );
+    print(
+      'Failed: $failureCount (${(failureCount / results.length * 100).toStringAsFixed(1)}%)',
+    );
 
     // Calculate timing statistics
     final successfulResults = results.where((r) => r.success).toList();
     if (successfulResults.isNotEmpty) {
-      final durations = successfulResults.map((r) => r.duration.inMilliseconds).toList();
+      final durations = successfulResults
+          .map((r) => r.duration.inMilliseconds)
+          .toList();
       durations.sort();
 
       final avg = durations.reduce((a, b) => a + b) / durations.length;
@@ -229,105 +264,149 @@ Future<List<TestResult>> stressTestDevice(
 
 void main() {
   group('Stress Test Suite', () {
-    test('rapid consecutive operations across all devices', () async {
-      final config = await loadDeviceConfig();
-      if (config == null) {
-        print('Skipped: No devices.json found. Copy test/integration/devices.json.example and fill in device credentials to run integration tests');
-        return;
-      }
+    test(
+      'rapid consecutive operations across all devices',
+      () async {
+        final config = await loadDeviceConfig();
+        if (config == null) {
+          print(
+            'Skipped: No devices.json found. Copy test/integration/devices.json.example and fill in device credentials to run integration tests',
+          );
+          return;
+        }
 
-      print('╔════════════════════════════════════════════════════════════════════════════╗');
-      print('║                    TinyTuya Dart - Stress Test Suite                      ║');
-      print('║                                                                            ║');
-      print('║  Testing rapid consecutive operations to validate package-level fixes     ║');
-      print('║  Target: Zero failures, matching Python implementation reliability        ║');
-      print('╚════════════════════════════════════════════════════════════════════════════╝');
-      print('');
-
-      final devices = config['devices'] as List;
-
-      // Test configuration
-      const cyclesPerDevice = 5; // 5 ON/OFF cycles = 10 total operations per device
-
-      print('Test Configuration:');
-      print('  Devices: ${devices.length}');
-      print('  Cycles per device: $cyclesPerDevice');
-      print('  Total operations per device: ${cyclesPerDevice * 2}');
-      print('  Total operations across all devices: ${devices.length * cyclesPerDevice * 2}');
-      print('');
-
-      // Track overall results
-      final allResults = <String, List<TestResult>>{};
-      final startTime = DateTime.now();
-
-      // Test each device
-      for (final device in devices) {
-        final results = await stressTestDevice(device, cyclesPerDevice);
-        allResults[device['name']] = results;
-
-        // Small pause between devices
-        await Future.delayed(const Duration(seconds: 2));
-      }
-
-      final totalDuration = DateTime.now().difference(startTime);
-
-      // Print overall summary
-      print('\n');
-      print('╔════════════════════════════════════════════════════════════════════════════╗');
-      print('║                        OVERALL TEST SUMMARY                                ║');
-      print('╚════════════════════════════════════════════════════════════════════════════╝');
-      print('');
-      print('Total test duration: ${totalDuration.inSeconds} seconds');
-      print('');
-
-      var totalOps = 0;
-      var totalSuccess = 0;
-      var totalFailures = 0;
-
-      for (final entry in allResults.entries) {
-        final deviceName = entry.key;
-        final results = entry.value;
-        final successes = results.where((r) => r.success).length;
-        final failures = results.where((r) => !r.success).length;
-
-        totalOps += results.length;
-        totalSuccess += successes;
-        totalFailures += failures;
-
-        final successRate = (successes / results.length * 100).toStringAsFixed(1);
-        final status = failures == 0 ? '✓' : '✗';
-
-        print('$status $deviceName:');
-        print('    Total: ${results.length} ops');
-        print('    Success: $successes ($successRate%)');
-        print('    Failures: $failures');
+        print(
+          '╔════════════════════════════════════════════════════════════════════════════╗',
+        );
+        print(
+          '║                    TinyTuya Dart - Stress Test Suite                      ║',
+        );
+        print(
+          '║                                                                            ║',
+        );
+        print(
+          '║  Testing rapid consecutive operations to validate package-level fixes     ║',
+        );
+        print(
+          '║  Target: Zero failures, matching Python implementation reliability        ║',
+        );
+        print(
+          '╚════════════════════════════════════════════════════════════════════════════╝',
+        );
         print('');
-      }
 
-      print('─' * 80);
-      print('GRAND TOTAL:');
-      print('  Operations: $totalOps');
-      print('  Successful: $totalSuccess (${(totalSuccess / totalOps * 100).toStringAsFixed(1)}%)');
-      print('  Failed: $totalFailures (${(totalFailures / totalOps * 100).toStringAsFixed(1)}%)');
-      print('');
+        final devices = config['devices'] as List;
 
-      if (totalFailures == 0) {
-        print('🎉 SUCCESS! All operations completed without errors!');
-        print('   Package reliability matches Python implementation.');
-      } else {
-        print('⚠️  WARNING: $totalFailures failures detected.');
-        print('   Further investigation needed.');
-      }
+        // Test configuration
+        const cyclesPerDevice =
+            5; // 5 ON/OFF cycles = 10 total operations per device
 
-      print('╔════════════════════════════════════════════════════════════════════════════╗');
-      print('║                           Test Complete                                   ║');
-      print('╚════════════════════════════════════════════════════════════════════════════╝');
+        print('Test Configuration:');
+        print('  Devices: ${devices.length}');
+        print('  Cycles per device: $cyclesPerDevice');
+        print('  Total operations per device: ${cyclesPerDevice * 2}');
+        print(
+          '  Total operations across all devices: ${devices.length * cyclesPerDevice * 2}',
+        );
+        print('');
 
-      // Assert that all operations succeeded
-      expect(totalFailures, equals(0),
-          reason: 'All stress test operations should succeed');
-      expect(totalSuccess, equals(totalOps),
-          reason: 'All operations should be successful');
-    }, timeout: const Timeout(Duration(minutes: 10)));
+        // Track overall results
+        final allResults = <String, List<TestResult>>{};
+        final startTime = DateTime.now();
+
+        // Test each device
+        for (final device in devices) {
+          final results = await stressTestDevice(device, cyclesPerDevice);
+          allResults[device['name']] = results;
+
+          // Small pause between devices
+          await Future.delayed(const Duration(seconds: 2));
+        }
+
+        final totalDuration = DateTime.now().difference(startTime);
+
+        // Print overall summary
+        print('\n');
+        print(
+          '╔════════════════════════════════════════════════════════════════════════════╗',
+        );
+        print(
+          '║                        OVERALL TEST SUMMARY                                ║',
+        );
+        print(
+          '╚════════════════════════════════════════════════════════════════════════════╝',
+        );
+        print('');
+        print('Total test duration: ${totalDuration.inSeconds} seconds');
+        print('');
+
+        var totalOps = 0;
+        var totalSuccess = 0;
+        var totalFailures = 0;
+
+        for (final entry in allResults.entries) {
+          final deviceName = entry.key;
+          final results = entry.value;
+          final successes = results.where((r) => r.success).length;
+          final failures = results.where((r) => !r.success).length;
+
+          totalOps += results.length;
+          totalSuccess += successes;
+          totalFailures += failures;
+
+          final successRate = (successes / results.length * 100)
+              .toStringAsFixed(1);
+          final status = failures == 0 ? '✓' : '✗';
+
+          print('$status $deviceName:');
+          print('    Total: ${results.length} ops');
+          print('    Success: $successes ($successRate%)');
+          print('    Failures: $failures');
+          print('');
+        }
+
+        print('─' * 80);
+        print('GRAND TOTAL:');
+        print('  Operations: $totalOps');
+        print(
+          '  Successful: $totalSuccess (${(totalSuccess / totalOps * 100).toStringAsFixed(1)}%)',
+        );
+        print(
+          '  Failed: $totalFailures (${(totalFailures / totalOps * 100).toStringAsFixed(1)}%)',
+        );
+        print('');
+
+        if (totalFailures == 0) {
+          print('🎉 SUCCESS! All operations completed without errors!');
+          print('   Package reliability matches Python implementation.');
+        } else {
+          print('⚠️  WARNING: $totalFailures failures detected.');
+          print('   Further investigation needed.');
+        }
+
+        print(
+          '╔════════════════════════════════════════════════════════════════════════════╗',
+        );
+        print(
+          '║                           Test Complete                                   ║',
+        );
+        print(
+          '╚════════════════════════════════════════════════════════════════════════════╝',
+        );
+
+        // Assert that all operations succeeded
+        expect(
+          totalFailures,
+          equals(0),
+          reason: 'All stress test operations should succeed',
+        );
+        expect(
+          totalSuccess,
+          equals(totalOps),
+          reason: 'All operations should be successful',
+        );
+      },
+      timeout: const Timeout(Duration(minutes: 10)),
+    );
   });
 }

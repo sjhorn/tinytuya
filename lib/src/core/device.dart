@@ -47,11 +47,13 @@ class Device {
   Completer<void>? _operationLock;
 
   // Session key negotiation fields (for v3.4+)
-  late final String _realLocalKey;  // Original local key
-  late String _sessionKey;          // Negotiated session key (replaces localKey after negotiation)
-  Uint8List? _localNonce;           // Local nonce for session key negotiation
-  Uint8List? _remoteNonce;          // Remote nonce from device
-  bool _sessionKeyNegotiated = false; // Track if session key has been negotiated for current connection
+  late final String _realLocalKey; // Original local key
+  late String
+  _sessionKey; // Negotiated session key (replaces localKey after negotiation)
+  Uint8List? _localNonce; // Local nonce for session key negotiation
+  Uint8List? _remoteNonce; // Remote nonce from device
+  bool _sessionKeyNegotiated =
+      false; // Track if session key has been negotiated for current connection
 
   Device({
     required this.deviceId,
@@ -64,11 +66,13 @@ class Device {
     this.socketRetryLimit = 5,
     this.socketRetryDelay = const Duration(seconds: 5),
     this.socketNoDelay = true,
-    this.persist = false, // Default false to match Python's socketPersistent=False
+    this.persist =
+        false, // Default false to match Python's socketPersistent=False
   }) {
     _initVersionHeader();
     _realLocalKey = localKey;
-    _sessionKey = localKey; // Initially use the real key, will be replaced after negotiation
+    _sessionKey =
+        localKey; // Initially use the real key, will be replaced after negotiation
   }
 
   /// Get version string (e.g., "3.3" -> "v3.3", "3.4" -> "v3.4")
@@ -84,7 +88,9 @@ class Device {
 
   /// Initialize the version header for protocol 3.x
   void _initVersionHeader() {
-    final versionBytes = Uint8List.fromList(version.toStringAsFixed(1).codeUnits);
+    final versionBytes = Uint8List.fromList(
+      version.toStringAsFixed(1).codeUnits,
+    );
     _versionHeader = Uint8List.fromList([...versionBytes, ...protocol3xHeader]);
   }
 
@@ -168,13 +174,21 @@ class Device {
   Future<bool> _negotiateSessionKey() async {
     try {
       // Step 1: Send local nonce
-      _localNonce = Uint8List.fromList('0123456789abcdef'.codeUnits); // 16 bytes
+      _localNonce = Uint8List.fromList(
+        '0123456789abcdef'.codeUnits,
+      ); // 16 bytes
       _remoteNonce = null;
 
-      final step1Payload = MessagePayload(cmd: sessKeyNegStart, payload: _localNonce!);
+      final step1Payload = MessagePayload(
+        cmd: sessKeyNegStart,
+        payload: _localNonce!,
+      );
 
       // Send step 1 and receive step 2 response
-      final response = await _sendReceiveQuick(step1Payload, expectCmd: sessKeyNegResp);
+      final response = await _sendReceiveQuick(
+        step1Payload,
+        expectCmd: sessKeyNegResp,
+      );
       if (response == null) {
         return false;
       }
@@ -190,7 +204,10 @@ class Device {
         return false;
       }
 
-      await _sendReceiveQuick(step3Payload, expectCmd: null); // No response expected
+      await _sendReceiveQuick(
+        step3Payload,
+        expectCmd: null,
+      ); // No response expected
 
       // Finalize: Generate session key
       await _negotiateSessionKeyFinalize();
@@ -209,7 +226,13 @@ class Device {
     if (version == 3.4) {
       try {
         final cipher = AESCipher(Uint8List.fromList(_realLocalKey.codeUnits));
-        payload = await cipher.decrypt(enc: payload, useBase64: false, decodeText: false) as Uint8List;
+        payload =
+            await cipher.decrypt(
+                  enc: payload,
+                  useBase64: false,
+                  decodeText: false,
+                )
+                as Uint8List;
       } catch (e) {
         return false;
       }
@@ -218,10 +241,11 @@ class Device {
     // For v3.5, skip the 4-byte retcode prefix
     var offset = 0;
     if (version >= 3.5) {
-      if (payload.length < 52) {  // 4 (retcode) + 16 (nonce) + 32 (hmac)
+      if (payload.length < 52) {
+        // 4 (retcode) + 16 (nonce) + 32 (hmac)
         return false;
       }
-      offset = 4;  // Skip retcode
+      offset = 4; // Skip retcode
     } else {
       if (payload.length < 48) {
         return false;
@@ -269,7 +293,11 @@ class Device {
 
     if (version == 3.4) {
       // For v3.4: Encrypt with AES-ECB (no IV, no padding)
-      final encrypted = await cipher.encrypt(raw: xored, useBase64: false, usePad: false);
+      final encrypted = await cipher.encrypt(
+        raw: xored,
+        useBase64: false,
+        usePad: false,
+      );
       _sessionKey = String.fromCharCodes(encrypted);
     } else {
       // For v3.5: Encrypt with AES-GCM using IV from local nonce, take bytes [12:28]
@@ -302,7 +330,10 @@ class Device {
   }
 
   /// Send/receive for session key negotiation (quick mode)
-  Future<TuyaMessage?> _sendReceiveQuick(MessagePayload payload, {int? expectCmd}) async {
+  Future<TuyaMessage?> _sendReceiveQuick(
+    MessagePayload payload, {
+    int? expectCmd,
+  }) async {
     try {
       // Encode and send
       final encodedMsg = await _encodeMessage(payload);
@@ -463,7 +494,9 @@ class Device {
       }
     }
 
-    throw TinyTuyaException('Unable to connect to device after $socketRetryLimit attempts');
+    throw TinyTuyaException(
+      'Unable to connect to device after $socketRetryLimit attempts',
+    );
   }
 
   /// Get next sequence number
@@ -514,11 +547,19 @@ class Device {
         useIv = true;
       } else {
         // For v3.4, encrypt payload with AES-ECB before packing
-        payload = await _cipher!.encrypt(raw: payload, useBase64: false, usePad: true);
+        payload = await _cipher!.encrypt(
+          raw: payload,
+          useBase64: false,
+          usePad: true,
+        );
       }
     } else if (version >= 3.2) {
       // For v3.2/v3.3: Encrypt FIRST, then add version header
-      payload = await _cipher!.encrypt(raw: payload, useBase64: false, usePad: true);
+      payload = await _cipher!.encrypt(
+        raw: payload,
+        useBase64: false,
+        usePad: true,
+      );
 
       // Then add version header (unless it's a special command)
       if (!noProtocolHeaderCmds.contains(msg.cmd)) {
@@ -548,7 +589,8 @@ class Device {
   Future<TuyaMessage> _receive() async {
     // Minimum message lengths
     const minLen55aa = 16 + 4 + 4 + 4; // header + retcode + crc + suffix
-    const minLen6699 = 20 + 12 + 4 + 16 + 4; // header + iv + retcode + tag + suffix
+    const minLen6699 =
+        20 + 12 + 4 + 16 + 4; // header + iv + retcode + tag + suffix
     const minLen = minLen55aa < minLen6699 ? minLen55aa : minLen6699;
 
     // Read minimum amount of data
@@ -562,11 +604,19 @@ class Device {
     while (prefix55aaOffset != 0 && prefix6699Offset != 0) {
       if (prefix55aaOffset < 0 && prefix6699Offset < 0) {
         // No prefix found, keep last 3 bytes and read more
-        data = Uint8List.fromList([...data.sublist(data.length - 3), ...await _recvAll(minLen - 3)]);
+        data = Uint8List.fromList([
+          ...data.sublist(data.length - 3),
+          ...await _recvAll(minLen - 3),
+        ]);
       } else {
         // Prefix found but not at start, skip to it
-        final offset = prefix6699Offset < 0 ? prefix55aaOffset : prefix6699Offset;
-        data = Uint8List.fromList([...data.sublist(offset), ...await _recvAll(minLen - (data.length - offset))]);
+        final offset = prefix6699Offset < 0
+            ? prefix55aaOffset
+            : prefix6699Offset;
+        data = Uint8List.fromList([
+          ...data.sublist(offset),
+          ...await _recvAll(minLen - (data.length - offset)),
+        ]);
       }
       prefix55aaOffset = _findBytes(data, prefix55aaBin);
       prefix6699Offset = _findBytes(data, prefix6699Bin);
@@ -581,7 +631,9 @@ class Device {
     }
 
     // Unpack message
-    final hmacKey = version >= 3.4 ? Uint8List.fromList(_sessionKey.codeUnits) : null;
+    final hmacKey = version >= 3.4
+        ? Uint8List.fromList(_sessionKey.codeUnits)
+        : null;
     return await unpackMessage(data, hmacKey: hmacKey, header: header);
   }
 
@@ -608,7 +660,9 @@ class Device {
       // For v3.4: Decrypt FIRST, then check for version header
       // Python: "3.4 devices encrypt the version header in addition to the payload"
       final cipher = AESCipher(Uint8List.fromList(_sessionKey.codeUnits));
-      data = await cipher.decrypt(enc: data, useBase64: false, decodeText: false) as Uint8List;
+      data =
+          await cipher.decrypt(enc: data, useBase64: false, decodeText: false)
+              as Uint8List;
 
       // After decryption, check if it starts with version header
       final versionBytes = utf8.encode(version.toString());
@@ -634,8 +688,12 @@ class Device {
 
       // For v3.5, check if payload starts with 4-byte retcode (all zeros)
       // Control responses have format: retcode + version header + JSON
-      if (version >= 3.5 && data.length >= 4 &&
-          data[0] == 0 && data[1] == 0 && data[2] == 0 && data[3] == 0) {
+      if (version >= 3.5 &&
+          data.length >= 4 &&
+          data[0] == 0 &&
+          data[1] == 0 &&
+          data[2] == 0 &&
+          data[3] == 0) {
         // Check if after retcode comes version string
         if (data.length >= 4 + versionBytes.length) {
           var hasVersionAfterRetcode = true;
@@ -677,7 +735,9 @@ class Device {
       if (version < 3.4) {
         // Decrypt the remaining data using AES-ECB with localKey
         final cipher = AESCipher(Uint8List.fromList(localKey.codeUnits));
-        data = await cipher.decrypt(enc: data, useBase64: false, decodeText: false) as Uint8List;
+        data =
+            await cipher.decrypt(enc: data, useBase64: false, decodeText: false)
+                as Uint8List;
       }
       // v3.5 with version header is plain JSON, no decryption needed
     }
@@ -756,10 +816,7 @@ class Device {
 
         // Normalize response: if dps is nested in 'data', copy it to top level
         // This matches Python's behavior for consistent API
-        final result = {
-          'success': response.crcGood,
-          ...decoded,
-        };
+        final result = {'success': response.crcGood, ...decoded};
 
         // If data.dps exists but top-level dps doesn't, copy it up
         if (result['data'] is Map &&
@@ -775,16 +832,15 @@ class Device {
 
       // Close socket if not in persistent mode (matches Python behavior)
       await _checkSocketClose();
-      return {
-        'success': response?.crcGood ?? false,
-      };
+      return {'success': response?.crcGood ?? false};
     } catch (e) {
       // Check if this is a timeout/connection error that we should retry
       final errorStr = e.toString();
-      final isTimeoutError = errorStr.contains('Timeout') ||
-                            errorStr.contains('timeout') ||
-                            e is TimeoutException ||
-                            e is DecodeError;
+      final isTimeoutError =
+          errorStr.contains('Timeout') ||
+          errorStr.contains('timeout') ||
+          e is TimeoutException ||
+          e is DecodeError;
 
       if (isTimeoutError && retryCount < 1) {
         // Socket connection has died (likely idle timeout)
@@ -793,16 +849,18 @@ class Device {
         await _closeSocket();
 
         // Retry once with a new connection
-        return await _sendReceive(payload, getResponse: getResponse, retryCount: retryCount + 1);
+        return await _sendReceive(
+          payload,
+          getResponse: getResponse,
+          retryCount: retryCount + 1,
+        );
       }
 
       // CRITICAL: Always close socket on error to ensure clean state for next operation
       // Any error indicates the socket/buffer is in an unknown/corrupted state
       await _closeSocket();
 
-      return {
-        'Error': e.toString(),
-      };
+      return {'Error': e.toString()};
     } finally {
       // CRITICAL: Always release lock, even if an exception escapes this method
       // This ensures we never deadlock if a timeout occurs from outside this method
@@ -867,7 +925,8 @@ class Device {
       if (jsonData['t'] == 'int') {
         jsonData['t'] = (DateTime.now().millisecondsSinceEpoch / 1000).floor();
       } else {
-        jsonData['t'] = ((DateTime.now().millisecondsSinceEpoch / 1000).floor()).toString();
+        jsonData['t'] = ((DateTime.now().millisecondsSinceEpoch / 1000).floor())
+            .toString();
       }
     }
 
@@ -896,10 +955,7 @@ class Device {
     final payloadStrCompact = payloadStr.replaceAll(' ', '');
     final payloadBytes = Uint8List.fromList(utf8.encode(payloadStrCompact));
 
-    return MessagePayload(
-      cmd: commandOverride,
-      payload: payloadBytes,
-    );
+    return MessagePayload(cmd: commandOverride, payload: payloadBytes);
   }
 
   /// Set status of the device to 'on' or 'off'
@@ -913,10 +969,7 @@ class Device {
     String switchNum = '1',
     bool nowait = false,
   }) async {
-    final payload = generatePayload(
-      command: control,
-      data: {switchNum: on},
-    );
+    final payload = generatePayload(command: control, data: {switchNum: on});
 
     return await _sendReceive(payload, getResponse: !nowait);
   }
@@ -934,10 +987,7 @@ class Device {
   }) async {
     final indexStr = index is int ? index.toString() : index as String;
 
-    final payload = generatePayload(
-      command: control,
-      data: {indexStr: value},
-    );
+    final payload = generatePayload(command: control, data: {indexStr: value});
 
     return await _sendReceive(payload, getResponse: !nowait);
   }
@@ -974,7 +1024,10 @@ class Device {
   /// Args:
   ///   switchNum: The switch to turn on (default '1')
   ///   nowait: True to send without waiting for response
-  Future<Map<String, dynamic>> turnOn({String switchNum = '1', bool nowait = false}) async {
+  Future<Map<String, dynamic>> turnOn({
+    String switchNum = '1',
+    bool nowait = false,
+  }) async {
     return await setStatus(on: true, switchNum: switchNum, nowait: nowait);
   }
 
@@ -983,7 +1036,10 @@ class Device {
   /// Args:
   ///   switchNum: The switch to turn off (default '1')
   ///   nowait: True to send without waiting for response
-  Future<Map<String, dynamic>> turnOff({String switchNum = '1', bool nowait = false}) async {
+  Future<Map<String, dynamic>> turnOff({
+    String switchNum = '1',
+    bool nowait = false,
+  }) async {
     return await setStatus(on: false, switchNum: switchNum, nowait: nowait);
   }
 
@@ -1013,10 +1069,7 @@ class Device {
   }) async {
     index ??= [1];
 
-    final payload = generatePayload(
-      command: updatedps,
-      data: index,
-    );
+    final payload = generatePayload(command: updatedps, data: index);
 
     return await _sendReceive(payload, getResponse: !nowait);
   }
@@ -1042,10 +1095,7 @@ class Device {
     Map<dynamic, dynamic> dps, {
     bool nowait = false,
   }) async {
-    final payload = generatePayload(
-      command: control,
-      data: {'dps': dps},
-    );
+    final payload = generatePayload(command: control, data: {'dps': dps});
     final result = await _sendReceive(payload, getResponse: !nowait);
     if (result.isNotEmpty) {
       _lastStatus = result;

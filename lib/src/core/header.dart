@@ -14,9 +14,18 @@ const protocolVersionBytes35 = '3.5';
 
 // Protocol headers (12 null bytes)
 final protocol3xHeader = Uint8List(12);
-final protocol33Header = Uint8List.fromList([...protocolVersionBytes33.codeUnits, ...protocol3xHeader]);
-final protocol34Header = Uint8List.fromList([...protocolVersionBytes34.codeUnits, ...protocol3xHeader]);
-final protocol35Header = Uint8List.fromList([...protocolVersionBytes35.codeUnits, ...protocol3xHeader]);
+final protocol33Header = Uint8List.fromList([
+  ...protocolVersionBytes33.codeUnits,
+  ...protocol3xHeader,
+]);
+final protocol34Header = Uint8List.fromList([
+  ...protocolVersionBytes34.codeUnits,
+  ...protocol3xHeader,
+]);
+final protocol35Header = Uint8List.fromList([
+  ...protocolVersionBytes35.codeUnits,
+  ...protocol3xHeader,
+]);
 
 // Prefix and Suffix values
 const prefix55aaValue = 0x000055AA;
@@ -61,7 +70,7 @@ class TuyaHeader {
   @override
   String toString() {
     return 'TuyaHeader(prefix: 0x${prefix.toRadixString(16)}, '
-           'seq: $seqno, cmd: $cmd, len: $length, total: $totalLength)';
+        'seq: $seqno, cmd: $cmd, len: $length, total: $totalLength)';
   }
 }
 
@@ -90,8 +99,8 @@ class TuyaMessage {
   @override
   String toString() {
     return 'TuyaMessage(seq: $seqno, cmd: $cmd, retcode: $retcode, '
-           'payloadLen: ${payload.length}, crcGood: $crcGood, '
-           'prefix: 0x${prefix.toRadixString(16)})';
+        'payloadLen: ${payload.length}, crcGood: $crcGood, '
+        'prefix: 0x${prefix.toRadixString(16)})';
   }
 }
 
@@ -100,8 +109,5 @@ class MessagePayload {
   final int cmd;
   final Uint8List payload;
 
-  MessagePayload({
-    required this.cmd,
-    required this.payload,
-  });
+  MessagePayload({required this.cmd, required this.payload});
 }

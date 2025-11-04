@@ -42,16 +42,16 @@ class Cloud {
 
   /// Region to URL host mapping
   static const Map<String, String> regionHosts = {
-    'cn': 'openapi.tuyacn.com',           // China Data Center
-    'us': 'openapi.tuyaus.com',           // Western America Data Center
-    'az': 'openapi.tuyaus.com',           // Alias for us
-    'us-e': 'openapi-ueaz.tuyaus.com',    // Eastern America Data Center
-    'ue': 'openapi-ueaz.tuyaus.com',      // Alias for us-e
-    'eu': 'openapi.tuyaeu.com',           // Central Europe Data Center
-    'eu-w': 'openapi-weaz.tuyaeu.com',    // Western Europe Data Center
-    'we': 'openapi-weaz.tuyaeu.com',      // Alias for eu-w
-    'in': 'openapi.tuyain.com',           // India Data Center
-    'sg': 'openapi-sg.iotbing.com',       // Singapore Data Center
+    'cn': 'openapi.tuyacn.com', // China Data Center
+    'us': 'openapi.tuyaus.com', // Western America Data Center
+    'az': 'openapi.tuyaus.com', // Alias for us
+    'us-e': 'openapi-ueaz.tuyaus.com', // Eastern America Data Center
+    'ue': 'openapi-ueaz.tuyaus.com', // Alias for us-e
+    'eu': 'openapi.tuyaeu.com', // Central Europe Data Center
+    'eu-w': 'openapi-weaz.tuyaeu.com', // Western Europe Data Center
+    'we': 'openapi-weaz.tuyaeu.com', // Alias for eu-w
+    'in': 'openapi.tuyain.com', // India Data Center
+    'sg': 'openapi-sg.iotbing.com', // Singapore Data Center
   };
 
   /// Constructor
@@ -133,7 +133,7 @@ class Cloud {
       if (urlPath != null) {
         // Extract path from full URL: https://host/path?query -> /path?query
         // Python: '/' + sign_url.split('//', 1)[-1].split('/', 1)[-1]
-        final pathMatch = RegExp(r'//[^/]+(/.*)'). firstMatch(urlPath);
+        final pathMatch = RegExp(r'//[^/]+(/.*)').firstMatch(urlPath);
         if (pathMatch != null) {
           payload += pathMatch.group(1)!;
         } else {
@@ -243,7 +243,9 @@ class Cloud {
         // Actual URL with encoding
         final encodedParts = <String>[];
         for (final key in sortedKeys) {
-          encodedParts.add('$key=${Uri.encodeComponent(query[key].toString())}');
+          encodedParts.add(
+            '$key=${Uri.encodeComponent(query[key].toString())}',
+          );
         }
         url += '?${encodedParts.join('&')}';
       }
@@ -255,7 +257,8 @@ class Cloud {
     }
 
     // Generate timestamp
-    final now = DateTime.now().millisecondsSinceEpoch + (serverTimeOffset * 1000);
+    final now =
+        DateTime.now().millisecondsSinceEpoch + (serverTimeOffset * 1000);
 
     // Add secret header if no token
     if (token == null) {
@@ -294,21 +297,14 @@ class Cloud {
           body: body,
         );
       } else if (action == 'PUT') {
-        response = await http.put(
-          Uri.parse(url),
-          headers: headers,
-          body: body,
-        );
+        response = await http.put(Uri.parse(url), headers: headers, body: body);
       } else if (action == 'DELETE') {
         response = await http.delete(Uri.parse(url), headers: headers);
       } else {
         throw ArgumentError('Invalid HTTP action: $action');
       }
     } catch (e) {
-      error = {
-        'error': 'HTTP request failed',
-        'message': e.toString(),
-      };
+      error = {'error': 'HTTP request failed', 'message': e.toString()};
       return null;
     }
 
@@ -343,10 +339,7 @@ class Cloud {
       responseDict = jsonDecode(response.body) as Map<String, dynamic>;
       error = null;
     } catch (e) {
-      error = {
-        'error': 'Invalid JSON response',
-        'message': response.body,
-      };
+      error = {'error': 'Invalid JSON response', 'message': response.body};
       return null;
     }
 

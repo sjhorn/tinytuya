@@ -14,5 +14,7 @@ void main() async {
   //   protocolVersion: '3.3',
   // );
 
-  print('Device creation and control will be available once porting is complete.');
+  print(
+    'Device creation and control will be available once porting is complete.',
+  );
 }

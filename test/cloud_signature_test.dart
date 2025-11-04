@@ -5,10 +5,9 @@ import 'package:tinytuya/tinytuya.dart';
 
 /// Helper to run Python test script
 Future<Map<String, dynamic>> runPythonSignatureTest() async {
-  final result = await Process.run(
-    'python3',
-    ['test/comparison_tests/python_scripts/test_cloud_signature.py'],
-  );
+  final result = await Process.run('python3', [
+    'test/comparison_tests/python_scripts/test_cloud_signature.py',
+  ]);
 
   if (result.exitCode != 0) {
     throw Exception('Python test failed: ${result.stderr}');
@@ -28,25 +27,28 @@ void main() {
       pythonResults = await runPythonSignatureTest();
     });
 
-    test('GET request without token (initial token request) - compare with Python', () {
-      final cloud = Cloud(
-        apiKey: apiKey,
-        apiSecret: apiSecret,
-        apiRegion: 'us',
-        token: null,
-        newSignAlgorithm: true,
-      );
+    test(
+      'GET request without token (initial token request) - compare with Python',
+      () {
+        final cloud = Cloud(
+          apiKey: apiKey,
+          apiSecret: apiSecret,
+          apiRegion: 'us',
+          token: null,
+          newSignAlgorithm: true,
+        );
 
-      final signature = cloud.generateSignature(
-        timestamp: timestamp,
-        action: 'GET',
-        body: '',
-        headers: {},
-        urlPath: 'https://openapi.tuyaus.com/v1.0/token',
-      );
+        final signature = cloud.generateSignature(
+          timestamp: timestamp,
+          action: 'GET',
+          body: '',
+          headers: {},
+          urlPath: 'https://openapi.tuyaus.com/v1.0/token',
+        );
 
-      expect(signature, equals(pythonResults['get_token_no_token']));
-    });
+        expect(signature, equals(pythonResults['get_token_no_token']));
+      },
+    );
 
     test('GET request with token - compare with Python', () {
       final cloud = Cloud(
@@ -62,7 +64,8 @@ void main() {
         action: 'GET',
         body: '',
         headers: {},
-        urlPath: 'https://openapi.tuyaus.com/v1.0/iot-01/associated-users/devices',
+        urlPath:
+            'https://openapi.tuyaus.com/v1.0/iot-01/associated-users/devices',
       );
 
       expect(signature, equals(pythonResults['get_with_token']));
@@ -88,7 +91,8 @@ void main() {
         action: 'POST',
         body: body,
         headers: headers,
-        urlPath: 'https://openapi.tuyaus.com/v1.0/iot-03/devices/test_device_id/commands',
+        urlPath:
+            'https://openapi.tuyaus.com/v1.0/iot-03/devices/test_device_id/commands',
       );
 
       expect(signature, equals(pythonResults['post_with_body']));
@@ -108,7 +112,8 @@ void main() {
         action: 'GET',
         body: '',
         headers: {},
-        urlPath: 'https://openapi.tuyaus.com/v1.0/iot-01/associated-users/devices?size=100',
+        urlPath:
+            'https://openapi.tuyaus.com/v1.0/iot-01/associated-users/devices?size=100',
       );
 
       expect(signature, equals(pythonResults['get_with_query']));

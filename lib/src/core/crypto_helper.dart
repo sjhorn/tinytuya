@@ -81,12 +81,17 @@ class AESCipher {
           : ivString.padRight(12, '0');
       return Uint8List.fromList(paddedIv.codeUnits);
     }
-    throw ArgumentError('IV generation requires generateIv=true or providing iv');
+    throw ArgumentError(
+      'IV generation requires generateIv=true or providing iv',
+    );
   }
 
   /// Extract decryption IV from data for GCM mode
   /// Returns [iv, remainingData]
-  static (Uint8List, Uint8List) getDecryptionIv(Uint8List data, {Uint8List? iv}) {
+  static (Uint8List, Uint8List) getDecryptionIv(
+    Uint8List data, {
+    Uint8List? iv,
+  }) {
     if (iv != null) {
       return (iv, data);
     }
@@ -145,7 +150,6 @@ class AESCipher {
 
     return useBase64 ? base64.encode(cryptedText) : cryptedText;
   }
-
 
   /// Decrypt data
   ///
@@ -219,11 +223,7 @@ class AESCipher {
 
       final algorithm = AesGcm.with128bits();
       final secretKey = SecretKey(key);
-      final secretBox = SecretBox(
-        cipherText,
-        nonce: nonce,
-        mac: Mac(authTag),
-      );
+      final secretBox = SecretBox(cipherText, nonce: nonce, mac: Mac(authTag));
 
       final decrypted = await algorithm.decrypt(
         secretBox,

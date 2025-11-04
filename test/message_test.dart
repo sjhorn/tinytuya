@@ -44,10 +44,7 @@ void main() {
     test('Parse header with insufficient data', () {
       final headerBytes = Uint8List(10); // Too short
 
-      expect(
-        () => parseHeader(headerBytes),
-        throwsA(isA<DecodeError>()),
-      );
+      expect(() => parseHeader(headerBytes), throwsA(isA<DecodeError>()));
     });
 
     test('Parse header with oversized payload', () {
@@ -169,12 +166,7 @@ void main() {
     test('Unpack with corrupted CRC fails gracefully', () async {
       final payload = Uint8List.fromList(utf8.encode('{"test": "data"}'));
 
-      final msg = TuyaMessage(
-        seqno: 1,
-        cmd: 7,
-        payload: payload,
-        crc: 0,
-      );
+      final msg = TuyaMessage(seqno: 1, cmd: 7, payload: payload, crc: 0);
 
       final packed = await packMessage(msg);
 
